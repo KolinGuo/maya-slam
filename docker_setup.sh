@@ -11,7 +11,7 @@ REPONAME="maya-slam"
 JUPYTERPORT="9000"
 TENSORBOARDPORT="6007"
 
-COMMANDTOCOMPILE="cd ffb6d/models/RandLA && sh compile_op.sh"
+COMMANDTOCOMPILE="cd slam_algorithms/ORB_SLAM3 && ./build.sh"
 COMMANDTORUNJUPYTER="jupyter notebook --no-browser --ip=0.0.0.0 --allow-root --port=${JUPYTERPORT} &"
 COMMANDTORUNTENSORBOARD="tensorboard --logdir /${REPONAME}/tb_logs/ --port ${TENSORBOARDPORT} --host 0.0.0.0 >/dev/null 2>&1 &"
 COMMANDTOSTARTCONTAINER="docker start -ai ${CONTNAME}"
