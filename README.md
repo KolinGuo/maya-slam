@@ -46,10 +46,47 @@ it. To turn screen rotation off, see
 
 Please place all datasets in [datasets/](datasets)
 
+For [TUM_VI](https://vision.in.tum.de/data/datasets/visual-inertial-dataset),
+ORBSLAM3 expects the data in raw format (i.e. _Euroc / DSO 512x512 dataset_)
+instead of ros bags.
+
 ```bash
 datasets
 ├── TUM_VI
-│   ├── dataset-corridor1_512_16.bag
+│   ├── dataset-corridor1_512_16
+│   │   ├── dso
+│   │   │   ├── cam0
+│   │   │   ├── cam1
+│   │   │   ├── camchain.yaml
+│   │   │   ├── gt_imu.csv
+│   │   │   ├── imu_config.yaml
+│   │   │   └── imu.txt
+│   │   └── mav0
+│   │       ├── cam0
+│   │       │   ├── data
+│   │       │   └── data.csv
+│   │       ├── cam1
+│   │       │   ├── data
+│   │       │   └── data.csv
+│   │       ├── imu0
+│   │       │   └── data.csv
+│   │       └── mocap0
+│   │           └── data.csv
 │   └── ...
 └── EuRoC
 ```
+
+## SLAM Algorithms
+
+<details>
+<summary><b>ORBSLAM3</b> </summary>
+<p>
+
+Use [docker_setup.sh](docker_setup.sh) to build the orbslam3 docker image locally
+or pull from DockerHub with [docker_setup_local.sh](docker_setup_local.sh).
+
+Use [tum_vi_examples.sh](slam_algorithms/ORB_SLAM3/tum_vi_examples.sh)
+to run with TUM_VI dataset.
+
+</p>
+</details>
