@@ -41,3 +41,15 @@ it. To turn screen rotation off, see
 
 </p>
 </details>
+
+## Dataset folder
+
+Please place all datasets in [datasets/](datasets)
+
+```bash
+datasets
+├── TUM_VI
+│   ├── dataset-corridor1_512_16.bag
+│   └── ...
+└── EuRoC
+```
