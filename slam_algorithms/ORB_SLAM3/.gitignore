@@ -107,3 +107,7 @@ my_settings.txt
 borrar/*
 
 */ExecMean.txt
+
+
+# Unignore output_trajectory
+!output_trajectory/*
