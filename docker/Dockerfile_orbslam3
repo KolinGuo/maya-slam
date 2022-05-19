@@ -1,16 +1,6 @@
 #FROM jahaniam/orbslam3:ubuntu18_melodic_cuda
 FROM nvidia/cudagl:11.3.1-devel-ubuntu18.04
 
-#### Temporary fix by https://gitlab.com/nvidia/container-images/cuda/-/issues/158 ####
-#### AND https://github.com/NVIDIA/cuda-repo-management/issues/4 ####
-RUN apt-key del "7fa2af80" \
-  && export this_distro="$(cat /etc/os-release | grep '^ID=' | awk -F'=' '{print $2}')" \
-  && export this_version="$(cat /etc/os-release | grep '^VERSION_ID=' | awk -F'=' '{print $2}' | sed 's/[^0-9]*//g')" \
-  && rm -v /etc/apt/sources.list.d/cuda.list /etc/apt/sources.list.d/nvidia-ml.list \
-  && apt-get update && apt-get install -y wget \
-  && wget "https://developer.download.nvidia.com/compute/cuda/repos/${this_distro}${this_version}/x86_64/cuda-keyring_1.0-1_all.deb" \
-  && dpkg -i cuda-keyring_1.0-1_all.deb
-
 #############################################
 # SECTION 0: Install cuDNN and              #
 #############################################
