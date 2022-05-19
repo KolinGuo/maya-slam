@@ -11,7 +11,7 @@ REPONAME="maya-slam"
 JUPYTERPORT="9000"
 TENSORBOARDPORT="6007"
 
-COMMANDTOCOMPILE="cd slam_algorithms/ORB_SLAM3 && ./build.sh"
+COMMANDTOCOMPILE="cd slam_algorithms/ORB_SLAM3 && ./build_ros.sh"
 COMMANDTORUNJUPYTER="jupyter notebook --no-browser --ip=0.0.0.0 --allow-root --port=${JUPYTERPORT} &"
 COMMANDTORUNTENSORBOARD="tensorboard --logdir /${REPONAME}/tb_logs/ --port ${TENSORBOARDPORT} --host 0.0.0.0 >/dev/null 2>&1 &"
 COMMANDTOSTARTCONTAINER="docker start -ai ${CONTNAME}"
@@ -231,6 +231,10 @@ build_docker_container() {
     -v "$SCRIPTPATH":/$REPONAME \
     -v /tmp/.X11-unix:/tmp/.X11-unix \
     -v /etc/localtime:/etc/localtime:ro \
+    -v /home/olorin/Desktop/UCSD/SP22/CSE237D/SLAM/Data:/input_data \
+    -v /home/olorin/Desktop/UCSD/SP22/CSE237D/SLAM/ORBSLAM3/:/orbslam3docker \
+    -v /dev/bus/usb:/dev/bus/usb \
+    --net=host \
     -e DISPLAY=$DISPLAY \
     -e QT_X11_NO_MITSHM=1 \
     -e XAUTHORITY \

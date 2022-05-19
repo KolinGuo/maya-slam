@@ -6,7 +6,7 @@ FROM nvidia/cudagl:11.3.1-devel-ubuntu18.04
 RUN apt-key del "7fa2af80" \
   && export this_distro="$(cat /etc/os-release | grep '^ID=' | awk -F'=' '{print $2}')" \
   && export this_version="$(cat /etc/os-release | grep '^VERSION_ID=' | awk -F'=' '{print $2}' | sed 's/[^0-9]*//g')" \
-  && rm -v /etc/apt/sources.list.d/cuda.list /etc/apt/sources.list.d/nvidia-ml.list \
+  && rm -v /etc/apt/sources.list.d/cuda.list \
   && apt-get update && apt-get install -y wget \
   && wget "https://developer.download.nvidia.com/compute/cuda/repos/${this_distro}${this_version}/x86_64/cuda-keyring_1.0-1_all.deb" \
   && dpkg -i cuda-keyring_1.0-1_all.deb
@@ -158,6 +158,19 @@ RUN cd /slamdoom/libs && git clone https://github.com/stevenlovegrove/Pangolin p
   && cd /slamdoom/libs/pangolin && mkdir build && cd build \
   && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-std=c++11 .. \
   && make -j$(nproc) && make install
+
+#Build librealsense
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libglfw3-dev libgl1-mesa-dev libglu1-mesa-dev
+RUN git clone https://github.com/IntelRealSense/librealsense.git
+# RUN cd librealsense && sed -i '79s/.*/ubuntu_codename="focal"/g' scripts/patch-realsense-ubuntu-lts.sh \
+#     && cat scripts/patch-realsense-ubuntu-lts.sh \
+#     && ./scripts/patch-realsense-ubuntu-lts.sh
+RUN cd librealsense && ./scripts/setup_udev_rules.sh
+RUN apt-get -y --no-install-recommends install libusb-1.0-0-dev
+RUN cd librealsense && mkdir build && cd build && cmake -DFORCE_RSUSB_BACKEND=true -DBUILD_WITH_CUDA=true .. \
+    && make clean -j4 \
+    && make install 
 
 ######################################
 # SECTION 5: Add running instruction #

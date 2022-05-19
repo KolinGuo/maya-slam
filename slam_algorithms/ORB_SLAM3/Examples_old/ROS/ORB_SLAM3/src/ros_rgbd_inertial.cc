@@ -1,8 +1,8 @@
 /**
 * This file is part of ORB-SLAM3
 *
-* Copyright (C) 2017-2021 Carlos Campos, Richard Elvira, Juan J. Gómez Rodríguez, José M.M. Montiel and Juan D. Tardós, University of Zaragoza.
-* Copyright (C) 2014-2016 Raúl Mur-Artal, José M.M. Montiel and Juan D. Tardós, University of Zaragoza.
+* CopyDepth (C) 2017-2021 Carlos Campos, Richard Elvira, Juan J. Gómez Rodríguez, José M.M. Montiel and Juan D. Tardós, University of Zaragoza.
+* CopyDepth (C) 2014-2016 Raúl Mur-Artal, José M.M. Montiel and Juan D. Tardós, University of Zaragoza.
 *
 * ORB-SLAM3 is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
 * License as published by the Free Software Foundation, either version 3 of the License, or
@@ -41,6 +41,7 @@ class ImuGrabber
 public:
     ImuGrabber(){};
     void GrabImu(const sensor_msgs::ImuConstPtr &imu_msg);
+    
 
     queue<sensor_msgs::ImuConstPtr> imuBuf;
     std::mutex mBufMutex;
@@ -51,13 +52,13 @@ class ImageGrabber
 public:
     ImageGrabber(ORB_SLAM3::System* pSLAM, ImuGrabber *pImuGb, const bool bRect, const bool bClahe): mpSLAM(pSLAM), mpImuGb(pImuGb), do_rectify(bRect), mbClahe(bClahe){}
 
-    void GrabImageLeft(const sensor_msgs::ImageConstPtr& msg);
-    void GrabImageRight(const sensor_msgs::ImageConstPtr& msg);
-    cv::Mat GetImage(const sensor_msgs::ImageConstPtr &img_msg);
+    void GrabImageRGB(const sensor_msgs::ImageConstPtr& msg);
+    void GrabImageDepth(const sensor_msgs::ImageConstPtr& msg);
+    cv::Mat GetImage(const sensor_msgs::ImageConstPtr &img_msg, int flag);
     void SyncWithImu();
 
-    queue<sensor_msgs::ImageConstPtr> imgLeftBuf, imgRightBuf;
-    std::mutex mBufMutexLeft,mBufMutexRight;
+    queue<sensor_msgs::ImageConstPtr> imgRGBBuf, imgDepthBuf;
+    std::mutex mBufMutexRGB,mBufMutexDepth;
    
     ORB_SLAM3::System* mpSLAM;
     ImuGrabber *mpImuGb;
@@ -73,13 +74,13 @@ public:
 
 int main(int argc, char **argv)
 {
-  ros::init(argc, argv, "Stereo_Inertial");
+  ros::init(argc, argv, "RGBD_Inertial");
   ros::NodeHandle n("~");
   ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Info);
   bool bEqual = false;
   if(argc < 4 || argc > 5)
   {
-    cerr << endl << "Usage: rosrun ORB_SLAM3 Stereo_Inertial path_to_vocabulary path_to_settings do_rectify [do_equalize]" << endl;
+    cerr << endl << "Usage: rosrun ORB_SLAM3 RGBD_Inertial path_to_vocabulary path_to_settings do_rectify [do_equalize]" << endl;
     ros::shutdown();
     return 1;
   }
@@ -93,7 +94,7 @@ int main(int argc, char **argv)
   }
 
   // Create SLAM system. It initializes all system threads and gets ready to process frames.
-  ORB_SLAM3::System SLAM(argv[1],argv[2],ORB_SLAM3::System::IMU_STEREO,true);
+  ORB_SLAM3::System SLAM(argv[1],argv[2],ORB_SLAM3::System::IMU_RGBD,true);
 
   ImuGrabber imugb;
   ImageGrabber igb(&SLAM,&imugb,sbRect == "true",bEqual);
@@ -109,22 +110,22 @@ int main(int argc, char **argv)
         }
 
         cv::Mat K_l, K_r, P_l, P_r, R_l, R_r, D_l, D_r;
-        fsSettings["LEFT.K"] >> K_l;
-        fsSettings["RIGHT.K"] >> K_r;
+        fsSettings["RGB.K"] >> K_l;
+        fsSettings["Depth.K"] >> K_r;
 
-        fsSettings["LEFT.P"] >> P_l;
-        fsSettings["RIGHT.P"] >> P_r;
+        fsSettings["RGB.P"] >> P_l;
+        fsSettings["Depth.P"] >> P_r;
 
-        fsSettings["LEFT.R"] >> R_l;
-        fsSettings["RIGHT.R"] >> R_r;
+        fsSettings["RGB.R"] >> R_l;
+        fsSettings["Depth.R"] >> R_r;
 
-        fsSettings["LEFT.D"] >> D_l;
-        fsSettings["RIGHT.D"] >> D_r;
+        fsSettings["RGB.D"] >> D_l;
+        fsSettings["Depth.D"] >> D_r;
 
-        int rows_l = fsSettings["LEFT.height"];
-        int cols_l = fsSettings["LEFT.width"];
-        int rows_r = fsSettings["RIGHT.height"];
-        int cols_r = fsSettings["RIGHT.width"];
+        int rows_l = fsSettings["RGB.height"];
+        int cols_l = fsSettings["RGB.width"];
+        int rows_r = fsSettings["Depth.height"];
+        int cols_r = fsSettings["Depth.width"];
 
         if(K_l.empty() || K_r.empty() || P_l.empty() || P_r.empty() || R_l.empty() || R_r.empty() || D_l.empty() || D_r.empty() ||
                 rows_l==0 || rows_r==0 || cols_l==0 || cols_r==0)
@@ -136,111 +137,116 @@ int main(int argc, char **argv)
         cv::initUndistortRectifyMap(K_l,D_l,R_l,P_l.rowRange(0,3).colRange(0,3),cv::Size(cols_l,rows_l),CV_32F,igb.M1l,igb.M2l);
         cv::initUndistortRectifyMap(K_r,D_r,R_r,P_r.rowRange(0,3).colRange(0,3),cv::Size(cols_r,rows_r),CV_32F,igb.M1r,igb.M2r);
     }
-  // cout<< "\nSetting up subscribers "<<std::endl;
 
   // Maximum delay, 5 seconds
-  ros::Subscriber sub_imu = n.subscribe("/imu0", 1000, &ImuGrabber::GrabImu, &imugb); 
-  ros::Subscriber sub_img_left = n.subscribe("/cam0/image_raw", 100, &ImageGrabber::GrabImageLeft,&igb);
-  ros::Subscriber sub_img_right = n.subscribe("/cam1/image_raw", 100, &ImageGrabber::GrabImageRight,&igb);
+  cout << "\nSetting up Subscribers \n";
+  ros::Subscriber sub_imu = n.subscribe("/camera/imu", 1000, &ImuGrabber::GrabImu, &imugb); 
+  ros::Subscriber sub_img_rgb = n.subscribe("/camera/color/image_raw", 100, &ImageGrabber::GrabImageRGB,&igb);
+  ros::Subscriber sub_img_depth = n.subscribe("/camera/aligned_depth_to_color/image_raw", 100, &ImageGrabber::GrabImageDepth,&igb);
 
   std::thread sync_thread(&ImageGrabber::SyncWithImu,&igb);
-
   ros::spin();
-
   return 0;
+
+
 }
 
 
 
-void ImageGrabber::GrabImageLeft(const sensor_msgs::ImageConstPtr &img_msg)
+void ImageGrabber::GrabImageRGB(const sensor_msgs::ImageConstPtr &img_msg)
 {
-  // cout<< "\nLeft Image "<<std::endl;
-  mBufMutexLeft.lock();
-  if (!imgLeftBuf.empty())
-    imgLeftBuf.pop();
-  imgLeftBuf.push(img_msg);
-  mBufMutexLeft.unlock();
+  mBufMutexRGB.lock();
+  if (!imgRGBBuf.empty())
+    imgRGBBuf.pop();
+  imgRGBBuf.push(img_msg);
+  mBufMutexRGB.unlock();
 }
 
-void ImageGrabber::GrabImageRight(const sensor_msgs::ImageConstPtr &img_msg)
+void ImageGrabber::GrabImageDepth(const sensor_msgs::ImageConstPtr &img_msg)
 {
-  // cout<< "\nRight Image "<<std::endl;
-  mBufMutexRight.lock();
-  if (!imgRightBuf.empty())
-    imgRightBuf.pop();
-  imgRightBuf.push(img_msg);
-  mBufMutexRight.unlock();
+  mBufMutexDepth.lock();
+  if (!imgDepthBuf.empty())
+    imgDepthBuf.pop();
+  imgDepthBuf.push(img_msg);
+  cout<<"Depth image received! " << std::endl;
+  mBufMutexDepth.unlock();
 }
 
-cv::Mat ImageGrabber::GetImage(const sensor_msgs::ImageConstPtr &img_msg)
+cv::Mat ImageGrabber::GetImage(const sensor_msgs::ImageConstPtr &img_msg, int flag = 0)
 {
   // Copy the ros image message to cv::Mat.
   cv_bridge::CvImageConstPtr cv_ptr;
   try
   {
-    cv_ptr = cv_bridge::toCvShare(img_msg, sensor_msgs::image_encodings::MONO8);
+    if(flag == 0)
+      cv_ptr = cv_bridge::toCvShare(img_msg, sensor_msgs::image_encodings::MONO8);
+    else
+      cv_ptr = cv_bridge::toCvShare(img_msg);
+
   }
   catch (cv_bridge::Exception& e)
   {
     ROS_ERROR("cv_bridge exception: %s", e.what());
   }
+  return cv_ptr->image;
   
-  if(cv_ptr->image.type()==0)
-  {
-    return cv_ptr->image.clone();
-  }
-  else
-  {
-    std::cout << "Error type" << std::endl;
-    return cv_ptr->image.clone();
-  }
+  // if(cv_ptr->image.type()==0)
+  // {
+  //   return cv_ptr->image.clone();
+  // }
+  // else
+  // {
+  //   std::cout << "Error type" << std::endl;
+  //   return cv_ptr->image.clone();
+  // }
 }
+
 
 void ImageGrabber::SyncWithImu()
 {
   const double maxTimeDiff = 0.01;
   while(1)
   {
-    cv::Mat imLeft, imRight;
-    double tImLeft = 0, tImRight = 0;
-    if (!imgLeftBuf.empty()&&!imgRightBuf.empty()&&!mpImuGb->imuBuf.empty())
+    cv::Mat imRGB, imDepth;
+    double tImRGB = 0, tImDepth = 0;
+    if (!imgRGBBuf.empty()&&!imgDepthBuf.empty()&&!mpImuGb->imuBuf.empty())
     {
-      tImLeft = imgLeftBuf.front()->header.stamp.toSec();
-      tImRight = imgRightBuf.front()->header.stamp.toSec();
+      tImRGB = imgRGBBuf.front()->header.stamp.toSec();
+      tImDepth = imgDepthBuf.front()->header.stamp.toSec();
 
-      this->mBufMutexRight.lock();
-      while((tImLeft-tImRight)>maxTimeDiff && imgRightBuf.size()>1)
+      this->mBufMutexDepth.lock();
+      while((tImRGB-tImDepth)>maxTimeDiff && imgDepthBuf.size()>1)
       {
-        imgRightBuf.pop();
-        tImRight = imgRightBuf.front()->header.stamp.toSec();
+        imgDepthBuf.pop();
+        tImDepth = imgDepthBuf.front()->header.stamp.toSec();
       }
-      this->mBufMutexRight.unlock();
+      this->mBufMutexDepth.unlock();
 
-      this->mBufMutexLeft.lock();
-      while((tImRight-tImLeft)>maxTimeDiff && imgLeftBuf.size()>1)
+      this->mBufMutexRGB.lock();
+      while((tImDepth-tImRGB)>maxTimeDiff && imgRGBBuf.size()>1)
       {
-        imgLeftBuf.pop();
-        tImLeft = imgLeftBuf.front()->header.stamp.toSec();
+        imgRGBBuf.pop();
+        tImRGB = imgRGBBuf.front()->header.stamp.toSec();
       }
-      this->mBufMutexLeft.unlock();
+      this->mBufMutexRGB.unlock();
 
-      if((tImLeft-tImRight)>maxTimeDiff || (tImRight-tImLeft)>maxTimeDiff)
+      if((tImRGB-tImDepth)>maxTimeDiff || (tImDepth-tImRGB)>maxTimeDiff)
       {
-        // std::cout << "big time difference" << std::endl;
+        std::cout << "big time difference" << std::endl;
         continue;
       }
-      if(tImLeft>mpImuGb->imuBuf.back()->header.stamp.toSec())
+      if(tImRGB>mpImuGb->imuBuf.back()->header.stamp.toSec())
           continue;
 
-      this->mBufMutexLeft.lock();
-      imLeft = GetImage(imgLeftBuf.front());
-      imgLeftBuf.pop();
-      this->mBufMutexLeft.unlock();
+      this->mBufMutexRGB.lock();
+      imRGB = GetImage(imgRGBBuf.front());
+      imgRGBBuf.pop();
+      this->mBufMutexRGB.unlock();
 
-      this->mBufMutexRight.lock();
-      imRight = GetImage(imgRightBuf.front());
-      imgRightBuf.pop();
-      this->mBufMutexRight.unlock();
+      this->mBufMutexDepth.lock();
+      imDepth = GetImage(imgDepthBuf.front(), 1);
+      imgDepthBuf.pop();
+      this->mBufMutexDepth.unlock();
 
       vector<ORB_SLAM3::IMU::Point> vImuMeas;
       mpImuGb->mBufMutex.lock();
@@ -248,7 +254,7 @@ void ImageGrabber::SyncWithImu()
       {
         // Load imu measurements from buffer
         vImuMeas.clear();
-        while(!mpImuGb->imuBuf.empty() && mpImuGb->imuBuf.front()->header.stamp.toSec()<=tImLeft)
+        while(!mpImuGb->imuBuf.empty() && mpImuGb->imuBuf.front()->header.stamp.toSec()<=tImRGB)
         {
           double t = mpImuGb->imuBuf.front()->header.stamp.toSec();
           cv::Point3f acc(mpImuGb->imuBuf.front()->linear_acceleration.x, mpImuGb->imuBuf.front()->linear_acceleration.y, mpImuGb->imuBuf.front()->linear_acceleration.z);
@@ -260,17 +266,17 @@ void ImageGrabber::SyncWithImu()
       mpImuGb->mBufMutex.unlock();
       if(mbClahe)
       {
-        mClahe->apply(imLeft,imLeft);
-        mClahe->apply(imRight,imRight);
+        mClahe->apply(imRGB,imRGB);
+        mClahe->apply(imDepth,imDepth);
       }
 
       if(do_rectify)
       {
-        cv::remap(imLeft,imLeft,M1l,M2l,cv::INTER_LINEAR);
-        cv::remap(imRight,imRight,M1r,M2r,cv::INTER_LINEAR);
+        cv::remap(imRGB,imRGB,M1l,M2l,cv::INTER_LINEAR);
+        cv::remap(imDepth,imDepth,M1r,M2r,cv::INTER_LINEAR);
       }
 
-      mpSLAM->TrackStereo(imLeft,imRight,tImLeft,vImuMeas);
+      mpSLAM->TrackRGBD(imRGB,imDepth,tImRGB,vImuMeas);
 
       std::chrono::milliseconds tSleep(1);
       std::this_thread::sleep_for(tSleep);
