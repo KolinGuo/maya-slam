@@ -1,16 +1,6 @@
 #FROM jahaniam/orbslam3:ubuntu18_melodic_cuda
 FROM nvidia/cudagl:11.3.1-devel-ubuntu18.04
 
-#### Temporary fix by https://gitlab.com/nvidia/container-images/cuda/-/issues/158 ####
-#### AND https://github.com/NVIDIA/cuda-repo-management/issues/4 ####
-RUN apt-key del "7fa2af80" \
-  && export this_distro="$(cat /etc/os-release | grep '^ID=' | awk -F'=' '{print $2}')" \
-  && export this_version="$(cat /etc/os-release | grep '^VERSION_ID=' | awk -F'=' '{print $2}' | sed 's/[^0-9]*//g')" \
-  && rm -v /etc/apt/sources.list.d/cuda.list \
-  && apt-get update && apt-get install -y wget \
-  && wget "https://developer.download.nvidia.com/compute/cuda/repos/${this_distro}${this_version}/x86_64/cuda-keyring_1.0-1_all.deb" \
-  && dpkg -i cuda-keyring_1.0-1_all.deb
-
 #############################################
 # SECTION 0: Install cuDNN and              #
 #############################################
@@ -64,7 +54,7 @@ RUN sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main"
 RUN sh -c 'echo "deb http://packages.ros.org/ros/ubuntu `lsb_release -sc` main" > /etc/apt/sources.list.d/ros-latest.list' \
   && wget http://packages.ros.org/ros.key -O - | sudo apt-key add - \
   && apt-get update && apt-get install -y python-catkin-tools \
-  && echo "source /opt/ros/melodic/setup.bash" >> ~/.bash_profile
+  && echo "source /opt/ros/melodic/setup.bash" >> ~/.bashrc
 
 ENV ROS_DISTRO melodic
 
@@ -159,18 +149,18 @@ RUN cd /slamdoom/libs && git clone https://github.com/stevenlovegrove/Pangolin p
   && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-std=c++11 .. \
   && make -j$(nproc) && make install
 
-#Build librealsense
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libglfw3-dev libgl1-mesa-dev libglu1-mesa-dev
-RUN git clone https://github.com/IntelRealSense/librealsense.git
-# RUN cd librealsense && sed -i '79s/.*/ubuntu_codename="focal"/g' scripts/patch-realsense-ubuntu-lts.sh \
-#     && cat scripts/patch-realsense-ubuntu-lts.sh \
-#     && ./scripts/patch-realsense-ubuntu-lts.sh
-RUN cd librealsense && ./scripts/setup_udev_rules.sh
-RUN apt-get -y --no-install-recommends install libusb-1.0-0-dev
-RUN cd librealsense && mkdir build && cd build && cmake -DFORCE_RSUSB_BACKEND=true -DBUILD_WITH_CUDA=true .. \
-    && make clean -j4 \
-    && make install 
+######################################
+# SECTION 4: Install librealsense    #
+######################################
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE \
+  || apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE \
+  && add-apt-repository "deb https://librealsense.intel.com/Debian/apt-repo $(lsb_release -cs) main" -u \
+  && apt-get update && apt-get install -y \
+    librealsense2-dkms librealsense2-utils \
+    librealsense2-dev librealsense2-dbg \
+    ros-melodic-realsense2-camera ros-melodic-realsense2-description \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
 
 ######################################
 # SECTION 5: Add running instruction #
@@ -193,3 +183,5 @@ RUN ln -s /usr/local/cuda-11.3/lib64/libcusolver.so.11 /usr/local/cuda-11.3/lib6
 #######################################
 # SECTION 6: Additional installations #
 #######################################
+# Add ORB_SLAM3 path to ROS_PACKAGE_PATH
+RUN echo 'export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:/maya-slam/slam_algorithms/ORB_SLAM3/Examples_old/ROS' >> ~/.bashrc
