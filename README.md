@@ -82,8 +82,8 @@ datasets
 <summary><b>ORBSLAM3</b> </summary>
 <p>
 
-Use [docker_setup.sh](docker_setup.sh) to build the orbslam3 docker image locally
-or pull from DockerHub with [docker_setup_local.sh](docker_setup_local.sh).
+Use [docker_setup.sh](docker_setup.sh) to pull orbslam3 docker images from DockerHub
+or build it locally with `./docker_setup.sh -l`.
 
 Use [tum_vi_examples.sh](slam_algorithms/ORB_SLAM3/tum_vi_examples.sh)
 to run with TUM_VI dataset.
