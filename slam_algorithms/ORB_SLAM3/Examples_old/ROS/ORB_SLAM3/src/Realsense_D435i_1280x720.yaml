@@ -12,10 +12,10 @@ Camera.type: "PinHole"
 #Camera1.fy: 617.362
 #Camera1.cx: 324.637
 #Camera1.cy: 242.462
-Camera1.fx: 607.516845703125
-Camera1.fy: 606.0403442382812
-Camera1.cx: 324.337646484375
-Camera1.cy: 242.6295623779297
+Camera1.fx: 911.2752685546875
+Camera1.fy: 909.060546875
+Camera1.cx: 646.5064697265625
+Camera1.cy: 363.9443359375
 
 # distortion parameters
 Camera1.k1: 0.0
@@ -24,8 +24,8 @@ Camera1.p1: 0.0
 Camera1.p2: 0.0
 
 # Camera resolution
-Camera.width: 640
-Camera.height: 480
+Camera.width: 1280
+Camera.height: 720
 
 # Camera frames per second
 Camera.fps: 30
