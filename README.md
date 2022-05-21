@@ -87,6 +87,7 @@ or build it locally with `./docker_setup.sh -l`.
 
 Use [tum_vi_examples.sh](slam_algorithms/ORB_SLAM3/tum_vi_examples.sh)
 to run with TUM_VI dataset.
+(Note: the seg fault at the end is not an issue since it only happens during destruction.)
 
 </p>
 </details>
