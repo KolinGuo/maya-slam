@@ -1,0 +1,9 @@
+<launch>
+  <node pkg="rosbag" type="play" name="rosbag_play_record"
+        args="$(find ORB_SLAM3)/rosbags/d435i_bag_2022-05-26-00-04-01.bag"
+        required="true" output="log" cwd="node"/>
+
+  <!--node pkg="rostopic" type="hz" name="rostopic_hz"
+        args="/camera/color/image_raw /camera/aligned_depth_to_color/image_raw /camera/imu"
+        output="screen"/-->
+</launch>
