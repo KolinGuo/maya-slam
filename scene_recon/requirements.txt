@@ -1,0 +1,6 @@
+numpy
+scipy
+tqdm
+trimesh
+pyvista
+pythreejs  # visualization used by pyvista
