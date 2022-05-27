@@ -5,4 +5,31 @@
   <node pkg="ORB_SLAM3" type="RGBD" name="orbslam3_rgbd"
         args="$(find ORB_SLAM3)/../../../Vocabulary/ORBvoc.txt $(find ORB_SLAM3)/src/Realsense_D435i_1280x720.yaml"
         required="true" output="screen" cwd="node" />
+
+  <node pkg="rosbag" type="record" name="rosbag_record_cam"
+        args="-o $(find ORB_SLAM3)/rosbags/d435i_bag
+              /camera/accel/imu_info
+              /camera/align_to_color/parameter_descriptions
+              /camera/align_to_color/parameter_updates
+              /camera/aligned_depth_to_color/camera_info
+              /camera/aligned_depth_to_color/image_raw
+              /camera/color/camera_info
+              /camera/color/image_raw
+              /camera/extrinsics/depth_to_color
+              /camera/gyro/imu_info
+              /camera/imu
+              /camera/motion_module/parameter_descriptions
+              /camera/motion_module/parameter_updates
+              /camera/rgb_camera/auto_exposure_roi/parameter_descriptions
+              /camera/rgb_camera/auto_exposure_roi/parameter_updates
+              /camera/rgb_camera/parameter_descriptions
+              /camera/rgb_camera/parameter_updates
+              /camera/stereo_module/auto_exposure_roi/parameter_descriptions
+              /camera/stereo_module/auto_exposure_roi/parameter_updates
+              /camera/stereo_module/parameter_descriptions
+              /camera/stereo_module/parameter_updates
+              /rosout
+              /rosout_agg
+              /tf_static"
+        output="screen"/>
 </launch>

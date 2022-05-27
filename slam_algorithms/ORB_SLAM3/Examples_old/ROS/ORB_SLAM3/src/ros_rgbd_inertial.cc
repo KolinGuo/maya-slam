@@ -16,23 +16,23 @@
 * If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include<iostream>
-#include<algorithm>
-#include<fstream>
-#include<chrono>
-#include<vector>
-#include<queue>
-#include<thread>
-#include<mutex>
+#include <iostream>
+#include <algorithm>
+#include <fstream>
+#include <chrono>
+#include <vector>
+#include <queue>
+#include <thread>
+#include <mutex>
 
-#include<ros/ros.h>
-#include<cv_bridge/cv_bridge.h>
-#include<sensor_msgs/Imu.h>
+#include <ros/ros.h>
+#include <cv_bridge/cv_bridge.h>
+#include <sensor_msgs/Imu.h>
 
-#include<opencv2/core/core.hpp>
+#include <opencv2/core/core.hpp>
 
-#include"../../../include/System.h"
-#include"../include/ImuTypes.h"
+#include "../../../include/System.h"
+#include "../include/ImuTypes.h"
 
 using namespace std;
 
@@ -41,7 +41,7 @@ class ImuGrabber
 public:
     ImuGrabber(){};
     void GrabImu(const sensor_msgs::ImuConstPtr &imu_msg);
-    
+
 
     queue<sensor_msgs::ImuConstPtr> imuBuf;
     std::mutex mBufMutex;
@@ -59,7 +59,7 @@ public:
 
     queue<sensor_msgs::ImageConstPtr> imgRGBBuf, imgDepthBuf;
     std::mutex mBufMutexRGB,mBufMutexDepth;
-   
+
     ORB_SLAM3::System* mpSLAM;
     ImuGrabber *mpImuGb;
 
@@ -98,9 +98,9 @@ int main(int argc, char **argv)
 
   ImuGrabber imugb;
   ImageGrabber igb(&SLAM,&imugb,sbRect == "true",bEqual);
-  
+
     if(igb.do_rectify)
-    {      
+    {
         // Load settings related to stereo calibration
         cv::FileStorage fsSettings(argv[2], cv::FileStorage::READ);
         if(!fsSettings.isOpened())
@@ -140,15 +140,13 @@ int main(int argc, char **argv)
 
   // Maximum delay, 5 seconds
   cout << "\nSetting up Subscribers \n";
-  ros::Subscriber sub_imu = n.subscribe("/camera/imu", 1000, &ImuGrabber::GrabImu, &imugb); 
+  ros::Subscriber sub_imu = n.subscribe("/camera/imu", 1000, &ImuGrabber::GrabImu, &imugb);
   ros::Subscriber sub_img_rgb = n.subscribe("/camera/color/image_raw", 100, &ImageGrabber::GrabImageRGB,&igb);
   ros::Subscriber sub_img_depth = n.subscribe("/camera/aligned_depth_to_color/image_raw", 100, &ImageGrabber::GrabImageDepth,&igb);
 
   std::thread sync_thread(&ImageGrabber::SyncWithImu,&igb);
   ros::spin();
   return 0;
-
-
 }
 
 
@@ -189,7 +187,7 @@ cv::Mat ImageGrabber::GetImage(const sensor_msgs::ImageConstPtr &img_msg, int fl
     ROS_ERROR("cv_bridge exception: %s", e.what());
   }
   return cv_ptr->image;
-  
+
   // if(cv_ptr->image.type()==0)
   // {
   //   return cv_ptr->image.clone();
@@ -291,5 +289,3 @@ void ImuGrabber::GrabImu(const sensor_msgs::ImuConstPtr &imu_msg)
   mBufMutex.unlock();
   return;
 }
-
-
