@@ -3,7 +3,7 @@
   <include file="$(find ORB_SLAM3)/launch/d435i.launch" unless="$(arg offline)" />
 
   <node pkg="ORB_SLAM3" type="RGBD" name="orbslam3_rgbd"
-        args="$(find ORB_SLAM3)/../../../Vocabulary/ORBvoc.txt $(find ORB_SLAM3)/src/Realsense_D435i.yaml"
+        args="$(find ORB_SLAM3)/../../../Vocabulary/ORBvoc.txt $(find ORB_SLAM3)/src/Realsense_D435i_1280x720.yaml"
         required="true" output="screen" cwd="node" />
 
   <node pkg="rosbag" type="record" name="rosbag_record_cam"
