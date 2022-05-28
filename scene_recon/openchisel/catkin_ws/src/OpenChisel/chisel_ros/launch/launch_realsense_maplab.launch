@@ -1,0 +1,32 @@
+<launch>
+    <machine name="local" address="localhost" default="true"/>
+
+
+    <node name="RVIZ" pkg="rviz" type="rviz" output="screen" args="-d $(find chisel_ros)/rviz/config.rviz">
+
+    </node>   
+    <node name="Chisel" pkg="chisel_ros" type="ChiselNode" output="screen" respawn="true"><!--launch-prefix="xterm -e gdb -args"-->
+        <param name="chunk_size_x" value="16"/>
+        <param name="chunk_size_y" value="16"/>
+        <param name="chunk_size_z" value="16"/>
+        <param name="truncation_scale" value="16.0"/>
+        <param name="integration_weight" value="1"/>
+        <param name="use_voxel_carving" value="true"/>
+        <param name="use_color" value="true"/>
+        <param name="carving_dist_m" value="0.1"/>
+        <param name="voxel_resolution_m" value="0.08"/>
+        <param name="far_plane_dist" value="1.5"/>
+        <param name="base_transform" value="/map"/>
+        <param name="depth_image_transform" value="/imu"/>
+        <param name="color_image_transform" value="/imu"/>
+        <param name="fusion_mode" value="DepthImage"/>
+        <param name="file_path" value="processed_pc.ply"/>
+
+        <remap from="/depth_image" to="/camera/aligned_depth_to_color/image_raw"/>
+        <remap from="/depth_camera_info" to="/camera/aligned_depth_to_color/camera_info"/>
+        <remap from="/color_image" to="/camera/color/image_raw"/>
+        <remap from="/color_camera_info" to="/camera/color/camera_info"/>
+        <remap from="/camera/depth_registered/points" to="/camera/depth/points"/>
+
+    </node>
+</launch>

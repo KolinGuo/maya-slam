@@ -115,7 +115,7 @@ namespace chisel_ros
 
     template <class DataType> void ROSImgToDepthImg(sensor_msgs::ImageConstPtr image, chisel::DepthImage<DataType>* depthImage)
     {
-            ROS_INFO("Got depth image of format %s", image->encoding.c_str());
+            // ROS_INFO("Got depth image of format %s", image->encoding.c_str());
             bool mmImage = false;
             
             if (image->encoding == "16UC1")
