@@ -91,3 +91,23 @@ to run with TUM_VI dataset.
 
 </p>
 </details>
+
+## Reconstruction Algorithms
+
+<details>
+<summary><b>openchisel</b> </summary>
+<p>
+
+Run [docker_setup_openchisel.sh -l](docker_setup_openchisel.sh) build the docker image.
+
+### Steps
+
+#### To compile/build
+* `cd scene_recon/openchisel`
+* `./build_ros.sh`
+
+#### To run
+`./run_openchisel.sh`
+
+</p>
+</details>
