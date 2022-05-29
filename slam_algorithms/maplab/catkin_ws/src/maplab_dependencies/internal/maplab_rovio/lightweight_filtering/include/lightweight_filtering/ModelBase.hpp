@@ -15,7 +15,7 @@ namespace LWF{
 template<typename DERIVED, typename Output, typename... Inputs>
 class ModelBase{
  public:
-  static constexpr unsigned int nInputs_ = sizeof...(Inputs);
+  static const unsigned int nInputs_ = sizeof...(Inputs);
   typedef Output mtOutput;
   typedef std::tuple<Inputs...> mtInputTuple;
   ModelBase(){};

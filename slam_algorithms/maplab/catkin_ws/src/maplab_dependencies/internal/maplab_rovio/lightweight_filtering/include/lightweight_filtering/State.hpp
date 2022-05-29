@@ -11,7 +11,6 @@
 #include "lightweight_filtering/common.hpp"
 #include "lightweight_filtering/PropertyHandler.hpp"
 #include <random>
-#include <glog/logging.h>
 
 namespace rot = kindr;
 
@@ -23,8 +22,8 @@ class ElementBase{
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   ElementBase(){};
   virtual ~ElementBase(){};
-  static constexpr unsigned int D_ = D;
-  static constexpr unsigned int E_ = E;
+  static const unsigned int D_ = D;
+  static const unsigned int E_ = E;
   typedef Eigen::Matrix<double,D_,1> mtDifVec;
   typedef GET mtGet;
   std::string name_;
@@ -48,7 +47,7 @@ class ElementBase{
   virtual const mtGet& get(unsigned int i) const = 0;
   virtual void registerElementToPropertyHandler(PropertyHandler* mpPropertyHandler, const std::string& str) = 0;
   void registerCovarianceToPropertyHandler(Eigen::MatrixXd& cov, PropertyHandler* mpPropertyHandler, const std::string& str, int j){
-    CHECK(j+D_<=cov.cols());
+    assert(j+D_<=cov.cols());
     for(unsigned int i=0;i<DERIVED::D_;i++){
       mpPropertyHandler->doubleRegister_.registerScalar(str + name_ + "_" + std::to_string(i), cov(j+i,j+i));
     }
@@ -114,11 +113,11 @@ class ScalarElement: public ElementBase<ScalarElement,double,1>{
   void fix(){
   }
   mtGet& get(unsigned int i = 0){
-    CHECK(i==0);
+    assert(i==0);
     return s_;
   }
   const mtGet& get(unsigned int i = 0) const{
-    CHECK(i==0);
+    assert(i==0);
     return s_;
   }
   void registerElementToPropertyHandler(PropertyHandler* mpPropertyHandler, const std::string& str){
@@ -134,7 +133,7 @@ class VectorElement: public ElementBase<VectorElement<N>,Eigen::Matrix<double,N,
   using typename Base::mtDifVec;
   using typename Base::mtGet;
   using Base::name_;
-  static constexpr unsigned int N_ = N;
+  static const unsigned int N_ = N;
   Eigen::Matrix<double,N_,1> v_;
   VectorElement(){}
   VectorElement(const VectorElement<N>& other){
@@ -167,11 +166,11 @@ class VectorElement: public ElementBase<VectorElement<N>,Eigen::Matrix<double,N,
   void fix(){
   }
   mtGet& get(unsigned int i = 0){
-    CHECK(i==0);
+    assert(i==0);
     return v_;
   }
   const mtGet& get(unsigned int i = 0) const{
-    CHECK(i==0);
+    assert(i==0);
     return v_;
   }
   void registerElementToPropertyHandler(PropertyHandler* mpPropertyHandler, const std::string& str){
@@ -220,11 +219,11 @@ class QuaternionElement: public ElementBase<QuaternionElement,QPD,3>{
     q_.fix();
   }
   mtGet& get(unsigned int i = 0){
-    CHECK(i==0);
+    assert(i==0);
     return q_;
   }
   const mtGet& get(unsigned int i = 0) const{
-    CHECK(i==0);
+    assert(i==0);
     return q_;
   }
   void registerElementToPropertyHandler(PropertyHandler* mpPropertyHandler, const std::string& str){
@@ -347,11 +346,11 @@ class NormalVectorElement: public ElementBase<NormalVectorElement,NormalVectorEl
     q_.fix();
   }
   mtGet& get(unsigned int i = 0){
-    CHECK(i==0);
+    assert(i==0);
     return *this;
   }
   const mtGet& get(unsigned int i = 0) const{
-    CHECK(i==0);
+    assert(i==0);
     return *this;
   }
   void registerElementToPropertyHandler(PropertyHandler* mpPropertyHandler, const std::string& str){
@@ -379,7 +378,7 @@ class ArrayElement: public ElementBase<ArrayElement<Element,M>,typename Element:
   using typename Base::mtGet;
   using Base::name_;
   using Base::D_;
-  static constexpr unsigned int M_ = M;
+  static const unsigned int M_ = M;
   Element array_[M_];
   mutable MXD boxMinusJacMat_;
   ArrayElement(): boxMinusJacMat_((int)Element::D_,(int)Element::D_){
@@ -451,11 +450,11 @@ class ArrayElement: public ElementBase<ArrayElement<Element,M>,typename Element:
     }
   }
   mtGet& get(unsigned int i){
-    CHECK_LT(i, M_);
+    assert(i<M_);
     return array_[i].get();
   }
   const mtGet& get(unsigned int i) const{
-    CHECK_LT(i, M_);
+    assert(i<M_);
     return array_[i].get();
   }
   void registerElementToPropertyHandler(PropertyHandler* mpPropertyHandler, const std::string& str){
@@ -491,25 +490,25 @@ class TH_multiple_elements<Arg,0>{
 template <typename Element>
 class TH_getDimension{
  public:
-  static constexpr unsigned int D_ = Element::D_;
+  static const unsigned int D_ = Element::D_;
 };
 template <typename Element>
 class TH_getDimension<std::tuple<Element>>{
  public:
-  static constexpr unsigned int D_ = Element::D_;
+  static const unsigned int D_ = Element::D_;
 };
 template <typename Element, typename... Elements>
 class TH_getDimension<std::tuple<Element, Elements...>>{
  public:
-  static constexpr unsigned int D_ = Element::D_ + TH_getDimension<std::tuple<Elements...>>::D_;
+  static const unsigned int D_ = Element::D_ + TH_getDimension<std::tuple<Elements...>>::D_;
 };
 
 template<typename... Elements>
 class State{
  public:
   typedef decltype(std::tuple_cat(typename TH_convert<Elements>::t()...)) t;
-  static constexpr unsigned int D_ = TH_getDimension<t>::D_;
-  static constexpr unsigned int E_ = std::tuple_size<t>::value;
+  static const unsigned int D_ = TH_getDimension<t>::D_;
+  static const unsigned int E_ = std::tuple_size<t>::value;
   typedef Eigen::Matrix<double,D_,1> mtDifVec;
   t mElements_;
   State(){

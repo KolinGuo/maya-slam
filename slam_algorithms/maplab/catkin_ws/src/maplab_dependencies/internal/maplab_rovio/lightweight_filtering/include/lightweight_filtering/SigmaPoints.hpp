@@ -18,9 +18,9 @@ class SigmaPoints{
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   typedef State mtState;
-  static constexpr unsigned int N_ = N;
-  static constexpr unsigned int L_ = L;
-  static constexpr unsigned int O_ = O;
+  static const unsigned int N_ = N;
+  static const unsigned int L_ = L;
+  static const unsigned int O_ = O;
   double wm_ = 1.0;
   double wc_ = 1.0;
   double wc0_ = 1.0;
@@ -174,7 +174,7 @@ class SigmaPoints{
     computeFromGaussian(identity,P);
   };
   const mtState& operator()(unsigned int i) const{
-    CHECK(i<L_);
+    assert(i<L_);
     if(i<O_){
       return sigmaPoints_[0];
     } else if(i<O_+N_){
@@ -184,7 +184,7 @@ class SigmaPoints{
     }
   };
   mtState& operator()(unsigned int i) {
-    CHECK(i<L_);
+    assert(i<L_);
     if(i<O_){
       return sigmaPoints_[0];
     } else if(i<O_+N_){
