@@ -1,32 +1,42 @@
 <launch>
-    <machine name="local" address="localhost" default="true"/>
+  <machine name="local" address="localhost" default="true"/>
+
+  <arg name="rosbag_path"  default="/maya-slam/slam_algorithms/rosbags/poseimage.bag"/>
+  <arg name="save_ply_dir" default="/maya-slam/scene_recon/output_plys"/>
 
 
-    <node name="RVIZ" pkg="rviz" type="rviz" output="screen" args="-d $(find chisel_ros)/rviz/config.rviz">
+  <node pkg="rviz" type="rviz" name="RVIZ" output="screen"
+        args="-d $(find chisel_ros)/rviz/config.rviz"/>
 
-    </node>   
-    <node name="Chisel" pkg="chisel_ros" type="ChiselNode" output="screen" respawn="true"><!--launch-prefix="xterm -e gdb -args"-->
-        <param name="chunk_size_x" value="16"/>
-        <param name="chunk_size_y" value="16"/>
-        <param name="chunk_size_z" value="16"/>
-        <param name="truncation_scale" value="16.0"/>
-        <param name="integration_weight" value="1"/>
-        <param name="use_voxel_carving" value="true"/>
-        <param name="use_color" value="true"/>
-        <param name="carving_dist_m" value="0.1"/>
-        <param name="voxel_resolution_m" value="0.08"/>
-        <param name="far_plane_dist" value="1.5"/>
-        <param name="base_transform" value="/map"/>
-        <param name="depth_image_transform" value="/imu"/>
-        <param name="color_image_transform" value="/imu"/>
-        <param name="fusion_mode" value="DepthImage"/>
-        <param name="file_path" value="processed_pc.ply"/>
+  <node pkg="chisel_ros" type="ChiselNode" name="Chisel" output="screen" respawn="true">
+  <!--launch-prefix="xterm -e gdb -args"-->
+    <param name="chunk_size_x" value="16"/>
+    <param name="chunk_size_y" value="16"/>
+    <param name="chunk_size_z" value="16"/>
+    <param name="truncation_scale" value="16.0"/>
+    <param name="integration_weight" value="1"/>
+    <param name="use_voxel_carving" value="true"/>
+    <param name="use_color" value="true"/>
+    <param name="carving_dist_m" value="0.1"/>
+    <param name="voxel_resolution_m" value="0.08"/>
+    <param name="far_plane_dist" value="1.5"/>
+    <param name="base_transform" value="/map"/>
+    <param name="depth_image_transform" value="/imu"/>
+    <param name="color_image_transform" value="/imu"/>
+    <param name="fusion_mode" value="DepthImage"/>
+    <param name="file_path" value="$(eval arg('save_ply_dir') + '/' +
+                                          arg('rosbag_path').split('/')[-1].replace('.', '_') +
+                                          '_openchisel.ply')"/>
+    <remap from="/depth_image" to="/camera/aligned_depth_to_color/image_raw"/>
+    <remap from="/depth_camera_info" to="/camera/aligned_depth_to_color/camera_info"/>
+    <remap from="/color_image" to="/camera/color/image_raw"/>
+    <remap from="/color_camera_info" to="/camera/color/camera_info"/>
+    <remap from="/camera/depth_registered/points" to="/camera/depth/points"/>
+  </node>
 
-        <remap from="/depth_image" to="/camera/aligned_depth_to_color/image_raw"/>
-        <remap from="/depth_camera_info" to="/camera/aligned_depth_to_color/camera_info"/>
-        <remap from="/color_image" to="/camera/color/image_raw"/>
-        <remap from="/color_camera_info" to="/camera/color/camera_info"/>
-        <remap from="/camera/depth_registered/points" to="/camera/depth/points"/>
+  <arg name="rosbag_play_start_delay" default="5.0" />
+  <node pkg="rosbag" type="play" name="rosbag_play_record"
+        args="$(arg rosbag_path)" required="true" output="log"
+        launch-prefix='bash -c "sleep $(arg rosbag_play_start_delay); ${0} ${@}"'/>
 
-    </node>
 </launch>
