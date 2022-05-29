@@ -1,0 +1,14 @@
+numpy
+scipy
+tqdm
+
+bagpy  # Reading rosbags
+
+# geometry processing
+transforms3d
+open3d
+trimesh
+pyvista
+pythreejs  # visualization used by pyvista
+
+plotly  # 3d line plots
