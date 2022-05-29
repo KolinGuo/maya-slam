@@ -13,7 +13,7 @@ if(NOT kindr_FOUND)
   pkg_check_modules(kindr kindr REQUIRED)
 endif()
 
-find_package(Eigen REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 include_directories(${kindr_INCLUDE_DIRS})
 include_directories(${EIGEN_INCLUDE_DIR})

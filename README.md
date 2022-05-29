@@ -90,4 +90,16 @@ to run with TUM_VI dataset.
 (Note: the seg fault at the end is not an issue since it only happens during destruction.)
 
 </p>
+
+<summary><b>MAPLAB</b> </summary>
+<p>
+
+Use [docker_setup_maplab.sh -l](docker_setup_maplab.sh) to build the maplab docker image
+
+Build using `./build_ros'
+and run using `./run_maplab.sh`
+
+</p>
+
+
 </details>
