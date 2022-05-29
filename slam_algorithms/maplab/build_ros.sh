@@ -10,3 +10,5 @@ catkin build opencv3_catkin -j$(($(nproc)-1))
 catkin build opengv -j$(($(nproc)-1))
 catkin build rovioli -j$(($(nproc)-1))
 catkin build maplab -j$(($(nproc)-1))
+
+chmod +x src/maplab/applications/rovioli/scripts/run_realsense
