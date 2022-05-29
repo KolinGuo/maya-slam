@@ -1,0 +1,13 @@
+<launch>
+ <node pkg="rosbag" type="record" name="rosbag_record_cam"
+       args="record -o $(find realsense_d435i_capture)/rosbags/realsense_d435i 
+       /camera/color/image_raw
+       /camera/aligned_depth_to_color/image_raw
+       /camera/imu
+       /camera/extrinsics/depth_to_color
+       /camera/color/camera_info
+       /camera/aligned_depth_to_color/camera_info
+       /camera/accel/imu_info
+       /camera/gyro/imu_info" />
+
+</launch>

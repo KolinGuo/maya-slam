@@ -76,6 +76,28 @@ datasets
 └── EuRoC
 ```
 
+## Camera Launch
+
+<details>
+<summary><b>openchisel</b> </summary>
+<p>
+
+Run [docker_setup_realsense.sh -l](docker_setup_openchisel.sh) build the docker image.
+
+### Steps
+
+#### To compile/build
+* `cd realsense_capture/`
+* `./build_ros.sh`
+
+#### To run
+`./start_camera.sh`
+`./start_recording.sh`
+
+</p>
+</details>
+
+
 ## SLAM Algorithms
 
 <details>
