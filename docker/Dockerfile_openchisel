@@ -1,0 +1,99 @@
+#FROM jahaniam/orbslam3:ubuntu18_melodic_cuda
+FROM nvidia/cudagl:11.3.1-devel-ubuntu18.04
+
+#############################################
+# SECTION 0: Install cuDNN and              #
+#############################################
+ENV NV_CUDNN_VERSION=8.2.0.53
+
+ENV NV_CUDNN_PACKAGE="libcudnn8=$NV_CUDNN_VERSION-1+cuda11.3" \
+    NV_CUDNN_PACKAGE_DEV="libcudnn8-dev=$NV_CUDNN_VERSION-1+cuda11.3" \
+    NV_CUDNN_PACKAGE_NAME="libcudnn8"
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ${NV_CUDNN_PACKAGE} \
+    ${NV_CUDNN_PACKAGE_DEV} \
+  && apt-mark hold ${NV_CUDNN_PACKAGE_NAME} \
+  && rm -rf /var/lib/apt/lists/*
+
+#########################################
+# SECTION 1: Essentials                 #
+#########################################
+# Run apt-get (dkpg) without interactive dialogue
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    vim git curl wget yasm cmake unzip pkg-config \
+    checkinstall build-essential ca-certificates \
+    software-properties-common apt-utils bash-completion \
+    libeigen3-dev \
+  && apt-get upgrade -y \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
+
+# Setup locale language config
+RUN apt-get update && apt-get install -y --no-install-recommends locales \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/* \
+  && locale-gen "en_US.UTF-8" \
+  && update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 \
+  && ln -fs /usr/share/zoneinfo/America/Los_Angeles /etc/localtime  # Set timezone
+ENV LANG=en_US.UTF-8 LANGUAGE=en_US:en LC_ALL=en_US.UTF-8
+
+#########################################
+# SECTION 1.5: Install ROS melodic      #
+#########################################
+RUN sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list' \
+  && apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654 \
+  && curl -sSL 'http://keyserver.ubuntu.com/pks/lookup?op=get&search=0xC1CF6E31E6BADE8868B172B4F42ED6FBAB17C654' | apt-key add - \
+  && apt-get update && apt-get install -y ros-melodic-desktop \
+  && apt-get install -y python-rosdep \
+  && rosdep init && rosdep update \
+  && apt-get install -y python-rosinstall python-rosinstall-generator python-wstool build-essential
+
+# Intalling python-catkin
+RUN sh -c 'echo "deb http://packages.ros.org/ros/ubuntu `lsb_release -sc` main" > /etc/apt/sources.list.d/ros-latest.list' \
+  && wget http://packages.ros.org/ros.key -O - | sudo apt-key add - \
+  && apt-get update && apt-get install -y python-catkin-tools \
+  && echo "source /opt/ros/melodic/setup.bash" >> ~/.bashrc
+
+ENV ROS_DISTRO melodic
+
+#########################################
+# SECTION 2: Setup Image Libraries      #
+#########################################
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    zlib1g-dev libjpeg-dev libpng-dev xvfb ffmpeg xorg-dev \
+    xorg-dev libboost-all-dev libsdl2-dev swig \
+    libblas-dev liblapack-dev \
+    libopenblas-base libatlas-base-dev graphviz \
+  && apt-get upgrade -y \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
+
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ros-melodic-pcl-ros libyaml-cpp-dev ros-melodic-image-geometry ros-melodic-pcl-ros ros-melodic-cv-bridge
+
+######################################
+# SECTION 3: Add running instruction #
+######################################
+# Set working directory to be repository directory
+ENV REPOPATH /maya-slam
+WORKDIR ${REPOPATH}
+
+# Append the custom bashrc
+COPY bashrc /tmp/
+RUN cat /tmp/bashrc > /etc/bash.bashrc
+
+# For CUDA library
+ENV LD_LIBRARY_PATH=/usr/local/cuda/lib64:${LD_LIBRARY_PATH}
+# Tensorflow 2.4.1 CUDA library issue
+RUN ln -s /usr/local/cuda-11.3/lib64/libcusolver.so.11 /usr/local/cuda-11.3/lib64/libcusolver.so.10
+
+#ENTRYPOINT ["/ros_entrypoint.sh"]
+
+#######################################
+# SECTION 4: Additional installations #
+#######################################
+# Add ORB_SLAM3 path to ROS_PACKAGE_PATH
+RUN echo 'export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:/maya-slam/slam_algorithms/ORB_SLAM3/Examples_old/ROS' >> ~/.bashrc

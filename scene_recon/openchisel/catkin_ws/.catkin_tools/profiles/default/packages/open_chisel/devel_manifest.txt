@@ -1,0 +1,6 @@
+OpenChisel/open_chisel
+/maya-slam/scene_recon/openchisel/catkin_ws/devel/.private/open_chisel/cmake.lock /maya-slam/scene_recon/openchisel/catkin_ws/devel/./cmake.lock
+/maya-slam/scene_recon/openchisel/catkin_ws/devel/.private/open_chisel/lib/libopen_chisel.so /maya-slam/scene_recon/openchisel/catkin_ws/devel/lib/libopen_chisel.so
+/maya-slam/scene_recon/openchisel/catkin_ws/devel/.private/open_chisel/lib/pkgconfig/open_chisel.pc /maya-slam/scene_recon/openchisel/catkin_ws/devel/lib/pkgconfig/open_chisel.pc
+/maya-slam/scene_recon/openchisel/catkin_ws/devel/.private/open_chisel/share/open_chisel/cmake/open_chiselConfig-version.cmake /maya-slam/scene_recon/openchisel/catkin_ws/devel/share/open_chisel/cmake/open_chiselConfig-version.cmake
+/maya-slam/scene_recon/openchisel/catkin_ws/devel/.private/open_chisel/share/open_chisel/cmake/open_chiselConfig.cmake /maya-slam/scene_recon/openchisel/catkin_ws/devel/share/open_chisel/cmake/open_chiselConfig.cmake
