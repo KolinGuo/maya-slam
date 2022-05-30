@@ -5,6 +5,7 @@ from pathlib import Path
 
 import numpy as np
 import pyvista as pv  # pip3 install pyvista pythreejs  # last one for notebook visualization
+from tqdm import tqdm
 
 from typing import Dict
 
@@ -31,7 +32,7 @@ def _slice_mesh_chunks(m: pv.PolyData, box_size=1.0) -> Dict[str, pv.PolyData]:
                           id_mins[1]:id_maxs[1]+1,
                           id_mins[2]:id_maxs[2]+1]
 
-    for x, y, z in zip(xx.flatten(), yy.flatten(), zz.flatten()):
+    for x, y, z in zip(tqdm(xx.flatten(), desc='mesh slicing'), yy.flatten(), zz.flatten()):
         name = f"({x},{y},{z})"
         m_chunk = crop_mesh_with_box(
             m, np.array([x, y, z]) * box_size, [box_size] * 3
@@ -55,15 +56,20 @@ def slice_mesh_chunks(mesh_path: Path, save_mesh_chunks_dir: Path, box_size=1.0)
     :param box_size : Chunk cube side length in float
     """
     mesh = pv.read(mesh_path)
+    print(f'Loaded a TriangleMesh with {mesh.n_points} points and {mesh.n_faces} triangles')
 
+    print('\nBegin mesh slicing .....')
     mesh_chunks = _slice_mesh_chunks(mesh, box_size=box_size)
+    print(f'Sliced mesh into {len(mesh_chunks)} chunks')
+
     mesh_dict = {
         "models": [],
         "name": mesh_path.stem,
-        "scale": 100.0
+        "scale": 1.0
     }
 
-    for chunk_coord_str, m_chunk in mesh_chunks.items():
+    print('\nBegin saving mesh chunks .....')
+    for chunk_coord_str, m_chunk in tqdm(mesh_chunks.items(), desc='mesh saving'):
         save_m_chunk_path = save_mesh_chunks_dir / f"{mesh_path.stem}_{chunk_coord_str}.ply"
 
         m_chunk.save(save_m_chunk_path, binary=False, texture='RGB')
