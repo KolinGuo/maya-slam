@@ -76,6 +76,28 @@ datasets
 └── EuRoC
 ```
 
+## Camera Launch
+
+<details>
+<summary><b>openchisel</b> </summary>
+<p>
+
+Run [docker_setup_realsense.sh -l](docker_setup_openchisel.sh) build the docker image.
+
+### Steps
+
+#### To compile/build
+* `cd realsense_capture/`
+* `./build_ros.sh`
+
+#### To run
+`./start_camera.sh`
+`./start_recording.sh`
+
+</p>
+</details>
+
+
 ## SLAM Algorithms
 
 <details>
@@ -123,3 +145,11 @@ Run [docker_setup_openchisel.sh -l](docker_setup_openchisel.sh) build the docker
 
 </p>
 </details>
+
+
+### Remove this part later!!
+Here's my idea of workflow. Steps are : 
+1. `docker exec -it realsense_capture start_camera.sh` : This starts camera node showing images
+2. `docker exec -it realsense_capture start_recording.sh` : This starts recording to a bag
+3. `docker exec -it maplab run_maplab.sh` : This starts running SLAM. (TODO : need a script to record trajectory) (or/and, run ORBSLAM similarly)
+4. Then reconstruction follows.

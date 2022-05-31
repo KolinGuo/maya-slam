@@ -1,0 +1,157 @@
+#FROM jahaniam/orbslam3:ubuntu18_melodic_cuda
+FROM nvidia/cudagl:11.3.1-devel-ubuntu18.04
+
+#############################################
+# SECTION 0: Install cuDNN and              #
+#############################################
+ENV NV_CUDNN_VERSION=8.2.0.53
+
+ENV NV_CUDNN_PACKAGE="libcudnn8=$NV_CUDNN_VERSION-1+cuda11.3" \
+    NV_CUDNN_PACKAGE_DEV="libcudnn8-dev=$NV_CUDNN_VERSION-1+cuda11.3" \
+    NV_CUDNN_PACKAGE_NAME="libcudnn8"
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ${NV_CUDNN_PACKAGE} \
+    ${NV_CUDNN_PACKAGE_DEV} \
+  && apt-mark hold ${NV_CUDNN_PACKAGE_NAME} \
+  && rm -rf /var/lib/apt/lists/*
+
+#########################################
+# SECTION 1: Essentials                 #
+#########################################
+# Run apt-get (dkpg) without interactive dialogue
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    vim git curl wget yasm cmake unzip pkg-config \
+    checkinstall build-essential ca-certificates \
+    software-properties-common apt-utils bash-completion \
+    libeigen3-dev \
+  && apt-get upgrade -y \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
+
+# Setup locale language config
+RUN apt-get update && apt-get install -y --no-install-recommends locales \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/* \
+  && locale-gen "en_US.UTF-8" \
+  && update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 \
+  && ln -fs /usr/share/zoneinfo/America/Los_Angeles /etc/localtime  # Set timezone
+ENV LANG=en_US.UTF-8 LANGUAGE=en_US:en LC_ALL=en_US.UTF-8
+
+#########################################
+# SECTION 1.5: Install ROS melodic      #
+#########################################
+RUN sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list' \
+  && apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654 \
+  && curl -sSL 'http://keyserver.ubuntu.com/pks/lookup?op=get&search=0xC1CF6E31E6BADE8868B172B4F42ED6FBAB17C654' | apt-key add - \
+  && apt-get update && apt-get install -y ros-melodic-desktop \
+  && apt-get install -y python-rosdep \
+  && rosdep init && rosdep update \
+  && apt-get install -y python-rosinstall python-rosinstall-generator python-wstool build-essential
+
+# Intalling python-catkin
+RUN sh -c 'echo "deb http://packages.ros.org/ros/ubuntu `lsb_release -sc` main" > /etc/apt/sources.list.d/ros-latest.list' \
+  && wget http://packages.ros.org/ros.key -O - | sudo apt-key add - \
+  && apt-get update && apt-get install -y python-catkin-tools \
+  && echo "source /opt/ros/melodic/setup.bash" >> ~/.bashrc
+
+ENV ROS_DISTRO melodic
+
+#########################################
+# SECTION 2: Setup Image Libraries      #
+#########################################
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    zlib1g-dev libjpeg-dev libpng-dev xvfb ffmpeg xorg-dev \
+    xorg-dev libboost-all-dev libsdl2-dev swig \
+    libblas-dev liblapack-dev \
+    libopenblas-base libatlas-base-dev graphviz \
+  && apt-get upgrade -y \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
+
+######################################
+# SECTION 3: OpenCV packages         #
+######################################
+ARG OPENCV_PATH=/usr/local/share/opencv
+ARG OPENCV_CONTRIB_PATH=/usr/local/share/opencv_contrib
+ARG OPENCV_VERSION=4.4.0
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgtk-3-dev \
+    libavcodec-dev libavformat-dev libswscale-dev libv4l-dev \
+    libxvidcore-dev libx264-dev libjpeg-dev libpng-dev libtiff-dev \
+    gfortran openexr libatlas-base-dev python3-dev python3-numpy \
+    libtbb2 libtbb-dev libdc1394-22-dev libopenexr-dev \
+    libgstreamer-plugins-base1.0-dev libgstreamer1.0-dev \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
+
+RUN echo -e "Install OPENCV Contrib\n\n" && \
+    wget -O opencv_contrib.zip "https://github.com/opencv/opencv_contrib/archive/${OPENCV_VERSION}.zip" && \
+    unzip opencv_contrib.zip && \
+    mv opencv_contrib-* "$OPENCV_CONTRIB_PATH" && \
+    rm opencv_contrib.zip
+
+RUN echo -e "Install OPENCV \n\n" && \
+    wget -O opencv.zip "https://github.com/opencv/opencv/archive/${OPENCV_VERSION}.zip" && \
+    unzip opencv.zip && \
+    mv opencv-* "$OPENCV_PATH" && \
+    rm opencv.zip
+
+RUN echo -e "Make / Build OPENCV\n\n" && \
+    mkdir -p "${OPENCV_PATH}/build" && \
+    cd "${OPENCV_PATH}/build" && \
+    cmake -D CMAKE_BUILD_TYPE=RELEASE \
+    -D CMAKE_INSTALL_PREFIX="$OPENCV_PATH" \
+    -D OPENCV_EXTRA_MODULES_PATH="${OPENCV_CONTRIB_PATH}/modules" \
+    -D WITH_CUDA=ON \
+    -D CUDA_ARCH_BIN=6.1,7.5 \
+    -D CUDA_ARCH_PTX="" \
+    -D WITH_CUDNN=ON \
+    -D OPENCV_DNN_CUDA=ON \
+    -D WITH_CUBLAS=ON \
+    -D CUDA_FAST_MATH=ON \
+    -D ENABLE_FAST_MATH=ON \
+    -D WITH_TBB=ON \
+    -D WITH_V4L=ON \
+    -D WITH_QT=OFF \
+    -D WITH_OPENGL=ON \
+    -D BUILD_opencv_cudacodec=ON \
+    -D INSTALL_C_EXAMPLES=OFF \
+    -D INSTALL_PYTHON_EXAMPLES=OFF \
+    -D BUILD_opencv_python2=OFF \
+    -D BUILD_NEW_PYTHON_SUPPORT=ON \
+    -D PYTHON3_EXECUTABLE=$(which python3) \
+    -D PYTHON3_INCLUDE_DIR=$(python3 -c "from distutils.sysconfig import get_python_inc; print(get_python_inc())") \
+    -D OPENCV_PYTHON3_INSTALL_PATH=$(python3 -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())") \
+    -D BUILD_EXAMPLES=OFF \
+    .. && \
+    make -j$(nproc) && make install
+
+ENV OpenCV_DIR=/usr/local/share/opencv/build
+
+######################################
+# SECTION 4: Install librealsense    #
+######################################
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE \
+  || apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE \
+  && add-apt-repository "deb https://librealsense.intel.com/Debian/apt-repo $(lsb_release -cs) main" -u \
+  && apt-get update && apt-get install -y \
+    librealsense2-dkms librealsense2-utils \
+    librealsense2-dev librealsense2-dbg \
+    ros-melodic-realsense2-camera ros-melodic-realsense2-description \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
+
+ENV REPOPATH /maya-slam
+WORKDIR ${REPOPATH}
+
+# Append the custom bashrc
+COPY bashrc /tmp/
+RUN cat /tmp/bashrc > /etc/bash.bashrc
+
+# For CUDA library
+ENV LD_LIBRARY_PATH=/usr/local/cuda/lib64:${LD_LIBRARY_PATH}
+# Tensorflow 2.4.1 CUDA library issue
+RUN ln -s /usr/local/cuda-11.3/lib64/libcusolver.so.11 /usr/local/cuda-11.3/lib64/libcusolver.so.10
