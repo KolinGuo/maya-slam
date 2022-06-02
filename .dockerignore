@@ -1,6 +1,3 @@
-.git
-
-/d435i_imu_calibration
-/datasets
-/recordings
-/slam_algorithms
+*
+!bashrc
+!scene_recon/requirements.txt
