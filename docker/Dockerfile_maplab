@@ -48,13 +48,13 @@ RUN sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main"
   && apt-get update && apt-get install -y ros-melodic-desktop \
   && apt-get install -y python-rosdep \
   && rosdep init && rosdep update \
-  && apt-get install -y python-rosinstall python-rosinstall-generator python-wstool build-essential
-
-# Intalling python-catkin
-RUN sh -c 'echo "deb http://packages.ros.org/ros/ubuntu `lsb_release -sc` main" > /etc/apt/sources.list.d/ros-latest.list' \
+  && apt-get install -y python-rosinstall python-rosinstall-generator python-wstool build-essential \
+  && sh -c 'echo "deb http://packages.ros.org/ros/ubuntu `lsb_release -sc` main" > /etc/apt/sources.list.d/ros-latest.list' \
   && wget http://packages.ros.org/ros.key -O - | sudo apt-key add - \
   && apt-get update && apt-get install -y python-catkin-tools \
-  && echo "source /opt/ros/melodic/setup.bash" >> ~/.bashrc
+  && echo "source /opt/ros/melodic/setup.bash" >> ~/.bashrc \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
 
 ENV ROS_DISTRO melodic
 
@@ -131,7 +131,6 @@ RUN echo -e "Make / Build OPENCV\n\n" && \
 
 ENV OpenCV_DIR=/usr/local/share/opencv/build
 
-
 ######################################
 # SECTION 4: Install librealsense    #
 ######################################
@@ -146,19 +145,23 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-key F6E65AC044F831AC80A0
   && rm -rf /var/lib/apt/lists/*
 
 ######################################
-# SECTION 5: Building Maplab #
+# SECTION 5: Building Maplab         #
 ######################################
-
 # Dependencies
-RUN apt-get update && apt-get install -y autotools-dev ccache doxygen dh-autoreconf git liblapack-dev libblas-dev libgtest-dev libreadline-dev libssh2-1-dev pylint python-autopep8 python-catkin-tools python-pip python-git python-setuptools python-termcolor python-wstool libatlas3-base ros-melodic-pcl-ros libyaml-cpp-dev ros-melodic-image-geometry ros-melodic-pcl-ros ros-melodic-cv-bridge libgtk2.0-dev
-RUN pip install requests
+RUN apt-get update && apt-get install -y \
+    autotools-dev ccache doxygen dh-autoreconf git liblapack-dev libblas-dev \
+    libgtest-dev libreadline-dev libssh2-1-dev \
+    pylint python-autopep8 python-catkin-tools python-pip python-git \
+    python-setuptools python-termcolor python-wstool \
+    libatlas3-base ros-melodic-pcl-ros libyaml-cpp-dev \
+    ros-melodic-image-geometry ros-melodic-cv-bridge \
+    libgtk2.0-dev \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/* \
+  && pip install requests
 
-# Build maplab
-# RUN pwd
-# RUN ls home/
-# RUN cd maya-slam/slam_algorithms/maplab/catkin_ws && catkin build -j$(($(nproc)-1))
 ######################################
-# SECTION 5: Add running instruction #
+# SECTION 6: Add running instruction #
 ######################################
 # Set working directory to be repository directory
 ENV REPOPATH /maya-slam
@@ -176,6 +179,7 @@ RUN ln -s /usr/local/cuda-11.3/lib64/libcusolver.so.11 /usr/local/cuda-11.3/lib6
 #ENTRYPOINT ["/ros_entrypoint.sh"]
 
 #######################################
-# SECTION 6: Additional installations #
+# SECTION 7: Helpful commands         #
 #######################################
-# Add ORB_SLAM3 path to ROS_PACKAGE_PATH
+ENV COMMANDTOCOMPILE="cd slam_algorithms/maplab && ./build_ros.sh"
+#ENV COMMANDTORUNJUPYTER="jupyter notebook --no-browser --ip=0.0.0.0 --allow-root --port=${JUPYTERPORT} &"

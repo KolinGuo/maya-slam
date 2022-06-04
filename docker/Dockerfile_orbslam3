@@ -48,13 +48,13 @@ RUN sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main"
   && apt-get update && apt-get install -y ros-melodic-desktop \
   && apt-get install -y python-rosdep \
   && rosdep init && rosdep update \
-  && apt-get install -y python-rosinstall python-rosinstall-generator python-wstool build-essential
-
-# Intalling python-catkin
-RUN sh -c 'echo "deb http://packages.ros.org/ros/ubuntu `lsb_release -sc` main" > /etc/apt/sources.list.d/ros-latest.list' \
+  && apt-get install -y python-rosinstall python-rosinstall-generator python-wstool build-essential \
+  && sh -c 'echo "deb http://packages.ros.org/ros/ubuntu `lsb_release -sc` main" > /etc/apt/sources.list.d/ros-latest.list' \
   && wget http://packages.ros.org/ros.key -O - | sudo apt-key add - \
   && apt-get update && apt-get install -y python-catkin-tools \
-  && echo "source /opt/ros/melodic/setup.bash" >> ~/.bashrc
+  && echo "source /opt/ros/melodic/setup.bash" >> ~/.bashrc \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
 
 ENV ROS_DISTRO melodic
 
@@ -200,3 +200,10 @@ RUN ln -s /usr/local/cuda-11.3/lib64/libcusolver.so.11 /usr/local/cuda-11.3/lib6
 #######################################
 # Add ORB_SLAM3 path to ROS_PACKAGE_PATH
 RUN echo 'export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:/maya-slam/slam_algorithms/ORB_SLAM3/Examples_old/ROS' >> ~/.bashrc
+
+#######################################
+# SECTION 7: Helpful commands         #
+#######################################
+ENV COMMANDTOCOMPILE="cd slam_algorithms/ORB_SLAM3 && ./build.sh && ./build_ros.sh"
+ENV JUPYTERPORT="9000"
+ENV COMMANDTORUNJUPYTER="jupyter notebook --no-browser --ip=0.0.0.0 --allow-root --port=${JUPYTERPORT} &"
