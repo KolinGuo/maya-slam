@@ -140,7 +140,7 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-key F6E65AC044F831AC80A0
   && apt-get update && apt-get install -y \
     librealsense2-dkms librealsense2-utils \
     librealsense2-dev librealsense2-dbg \
-    ros-melodic-realsense2-camera ros-melodic-realsense2-description \
+    ros-melodic-realsense2-camera ros-melodic-realsense2-description ros-melodic-image-view ros-melodic-rosbash \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 

@@ -1,4 +1,4 @@
-cd catkin_ws
+cd /maya-slam/slam_algorithms/maplab/catkin_ws
 export ROS_VERSION=melodic
 catkin init
 catkin config --merge-devel # Necessary for catkin_tools >= 0.4.
@@ -12,3 +12,5 @@ catkin build rovioli -j$(($(nproc)-1))
 catkin build maplab -j$(($(nproc)-1))
 
 chmod +x src/maplab/applications/rovioli/scripts/run_realsense
+cd /maya-slam/slam_algorithms/maplab
+chmod +x run_maplab.sh
