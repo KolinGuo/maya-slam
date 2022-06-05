@@ -175,6 +175,7 @@ RUN apt-get update && apt-get install -y \
   && jupyter contrib nbextension install \
   && python3 -m pip install jupyter_nbextensions_configurator \
   && jupyter nbextensions_configurator enable \
+  && jupyter nbextension enable codefolding/main \
   && mkdir /.local && chmod a+rwx /.local
 
 ######################################
