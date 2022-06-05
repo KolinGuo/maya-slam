@@ -3,4 +3,18 @@
   <node type="run_realsense" name="realsense_maplab" pkg="rovioli" args="realsense_output" />
   <node type="rviz" name="rviz" pkg="rviz" args="-d $(find rovioli)/rviz/config_file.rviz" />
 
+  <arg name="rosbag_path_prefix"  default="/maya-slam/slam_algorithms/rosbags/d435i_kitchen_"/>
+
+   <node pkg="rosbag" type="record" name="rosbag_record_cam"
+       args="record -o $(arg rosbag_path)
+       /camera/color/image_raw
+       /camera/aligned_depth_to_color/image_raw
+       /camera/imu
+       /camera/extrinsics/depth_to_color
+       /camera/color/camera_info
+       /camera/aligned_depth_to_color/camera_info
+       /camera/accel/imu_info
+       /camera/gyro/imu_info
+       /tf /tf_static" />
+
 </launch>
