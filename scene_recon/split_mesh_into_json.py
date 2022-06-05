@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Split a mesh file into chunks and save as a JSON representation"""
+"""Split a mesh file into chunks and save as a JSON representation
+Usage: python3 split_mesh_into_json.py ./output_plys/d435i_corridor1.ply --box-size 3.0
+"""
 import json
 from pathlib import Path
 
@@ -70,7 +72,7 @@ def slice_mesh_chunks(mesh_path: Path, save_mesh_chunks_dir: Path, box_size=1.0)
 
     print('\nBegin saving mesh chunks .....')
     for chunk_coord_str, m_chunk in tqdm(mesh_chunks.items(), desc='mesh saving'):
-        save_m_chunk_path = save_mesh_chunks_dir / f"{mesh_path.stem}_{chunk_coord_str}.ply"
+        save_m_chunk_path = save_mesh_chunks_dir / f"chunk_{chunk_coord_str}.ply"
 
         m_chunk.save(save_m_chunk_path, binary=False, texture='RGB')
         mesh_dict["models"].append({
