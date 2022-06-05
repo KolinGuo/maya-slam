@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Open3D TSDF integration from rosbag"""
+"""Open3D TSDF integration from rosbag
+Usage: python3 open3d_tsdf_reconstruction.py ../../slam_algorithms/rosbags/d435i_corridor1.bag --voxel-length 0.005 --pose-refine
+"""
 from pathlib import Path
 from copy import deepcopy
 from typing import Tuple, List, Dict
@@ -195,18 +197,18 @@ def _tsdf_integration(volume: o3d.pipelines.integration.ScalableTSDFVolume,
     return cam_poses_stamped, odometry_results_stamped
 
 def tsdf_reconstruction(bag_path: Path, save_mesh_path: Path,
-                        voxel_length: float, pose_refine=False, save_pose_traj=False):
+                        voxel_length: float, pose_refine=False):
     """Use Open3D TSDF integration to reconstruct mesh from a rosbag.
 
     :param bag_path       : Path to the rosbag file to reconstruct
     :param save_mesh_path : Path to save the reconstructed PLY mesh
     :param voxel_length   : TSDF voxel length in meters
     :param pose_refine    : whether or not to perform consecutive frame pose refinement
-    :param save_pose_traj : whether or not to save the pose trajectory
     """
     bag = rosbag.Bag(bag_path)
 
     # Read frame data from rosbag
+    print('\nBegin reading rosbag .....')
     frame_data = read_frame_data_from_bag(bag)
 
     # Reference:
@@ -227,9 +229,10 @@ def tsdf_reconstruction(bag_path: Path, save_mesh_path: Path,
 
     print('\nBegin extracting triangular mesh .....')
     mesh = volume.extract_triangle_mesh()
+    print('Saving the extracted triangular mesh .....')
     o3d.io.write_triangle_mesh(str(save_mesh_path), mesh)
 
-    if save_pose_traj:
+    if pose_refine:
         print('\nBegin saving pose trajectory .....')
 
         save_pose_traj_dir = Path(str(save_mesh_path.with_suffix('')) + '_pose')
@@ -257,11 +260,6 @@ if __name__ == '__main__':
     parser.add_argument(
         "--pose-refine", action='store_true',
         help="If specified, perform additional consecutive frame pose refinement")
-    parser.add_argument(
-        "--save-pose-traj", action='store_true',
-        help="If specified, save the pose trajectory")
-    #parser.add_argument(
-    #    "--box-size", type=float, default=1.0, help="Chunk cube side length")
     args = parser.parse_args()
 
     # Verify bag_path
@@ -269,11 +267,14 @@ if __name__ == '__main__':
     assert args.bag_path.is_file(), f"Path {args.bag_path} does not exist"
 
     args.save_dir = Path(args.save_dir).resolve()
-    args.save_mesh_path = args.save_dir / f"{args.bag_path.stem}_O3DTSDF{args.voxel_length}m.ply"
+    save_mesh_postfix = f"o3dTSDF{args.voxel_length}m"
+    if args.pose_refine:
+        save_mesh_postfix += '_pose_refined'
+    args.save_mesh_path = args.save_dir / f"{args.bag_path.stem}_{save_mesh_postfix}.ply"
 
     print(f'\nUsing TSDF voxel_length of {args.voxel_length} meter')
 
     tsdf_reconstruction(args.bag_path, args.save_mesh_path,
-                        args.voxel_length, args.pose_refine, args.save_pose_traj)
+                        args.voxel_length, args.pose_refine)
 
     print(f'\nSuccessfully reconstruct from "{args.bag_path.name}" and saved as "{args.save_mesh_path}"\n')
