@@ -18,13 +18,26 @@ cameras:
     #     cols: 1
     #     rows: 4
     #     data: [ 0,0,0,0]
+    # image_height: 480
+    # image_width: 640
+    # type: pinhole
+    # intrinsics:
+    #   cols: 1
+    #   rows: 4
+    #   data: [606.8494873046875, 606.6380615234375, 319.6190490722656, 242.4906005859375]
+    # distortion:
+    #   type: radial-tangential
+    #   parameters:
+    #     cols: 1
+    #     rows: 4
+    #     data: [ 0,0,0,0]
     image_height: 480
-    image_width: 640
+    image_width: 848
     type: pinhole
     intrinsics:
       cols: 1
       rows: 4
-      data: [606.8494873046875, 606.6380615234375, 319.6190490722656, 242.4906005859375]
+      data: [606.8494262695312, 606.6380615234375, 423.6190490722656, 242.4906005859375]
     distortion:
       type: radial-tangential
       parameters:

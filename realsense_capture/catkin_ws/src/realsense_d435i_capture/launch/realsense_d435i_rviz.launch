@@ -12,10 +12,11 @@
         <arg name="depth_width" value="1280"/>
         <arg name="depth_height" value="720"/> -->
         <arg name="enable_sync" value="true"/>
-        <arg name="color_width" value="640"/>
+        <arg name="color_width" value="848"/>
         <arg name="color_height" value="480"/>
-        <arg name="depth_width" value="640"/>
+        <arg name="depth_width" value="848"/>
         <arg name="depth_height" value="480"/>
+        <arg name="json_file_path" default="$(find realsense_d435i_capture)/json/HighAccuracyPreset.json"/>
         <arg name="enable_pointcloud" value="true"/>
         <arg name="depth_fps" value="30" />        
         <arg name="color_fps" value="30" />
