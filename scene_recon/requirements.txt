@@ -7,7 +7,7 @@ bagpy  # Reading rosbags
 # geometry processing
 transforms3d
 open3d
-trimesh
+trimesh[easy]
 pyvista
 pythreejs  # visualization used by pyvista
 
