@@ -50,7 +50,13 @@ if __name__ == '__main__':
 
             split_mesh = pv.PolyData()
             for m_chunk_path in tqdm(list(mesh_path.glob('*.ply')), desc='Chunks'):
-                split_mesh += pv.read(m_chunk_path)
+                # Loading mesh chunks is fast (~10 seconds for ~1 GB mesh)
+                # For +=, by default will merge equivalent points which is very slow if lots of points
+                # += does perform inplace updates.
+                #split_mesh += pv.read(m_chunk_path)
+
+                # Turn off merge_points and enable inplace merging
+                split_mesh = split_mesh.merge(pv.read(m_chunk_path), merge_points=False, inplace=True)
             meshes[mesh_path.parent.name] = split_mesh
 
     # Plotter window shape
