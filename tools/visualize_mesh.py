@@ -1,13 +1,21 @@
 #!/usr/bin/env python3
 """Quick visualization of a mesh
-Usage:
+Usage examples:
     python3 visualize_mesh.py ../scene_recon/output_plys/d435i_corridor1.ply
+
+    python3 visualize_mesh.py ../scene_recon/output_plys/d435i_corridor1_split/meshes
+
     python3 visualize_mesh.py ../scene_recon/output_plys/d435i_corridor1.ply \
             ../scene_recon/output_plys/d435i_corridor1_pose_refine.ply
-    python3 visualize_mesh.py ../scene_recon/output_plys/d435i_corridor1.ply
+
+    python3 visualize_mesh.py ../scene_recon/output_plys/d435i_corridor1_split/meshes \
+            ../scene_recon/output_plys/d435i_corridor1_pose_refine.ply \
+            ../scene_recon/output_plys/d435i_corridor2_split/meshes \
+            ../scene_recon/output_plys/d435i_corridor2_pose_refine.ply
 """
 from pathlib import Path
 
+from tqdm import tqdm
 import pyvista as pv
 
 if __name__ == '__main__':
@@ -26,13 +34,24 @@ if __name__ == '__main__':
     # Verify mesh_path
     args.mesh_paths = [Path(mesh_path).resolve() for mesh_path in args.mesh_paths]
     for mesh_path in args.mesh_paths:
-        assert mesh_path.is_file(), f'Path "{mesh_path}" does not exist'
+        assert (mesh_path.is_file() and mesh_path.suffix == '.ply') or \
+               (mesh_path.is_dir() and len(list(mesh_path.glob('*.ply'))) > 0), \
+            f'Path "{mesh_path}" does not exist, is not a mesh file, or does not contain mesh files'
 
     # Load all meshes
     meshes = {}  # {mesh_path: mesh}
     for mesh_path in args.mesh_paths:
-        print(f'Loading mesh "{mesh_path.name}" .....')
-        meshes[mesh_path.name] = pv.read(mesh_path)
+        if mesh_path.is_file():
+            print(f'Loading mesh "{mesh_path.name}" .....')
+            meshes[mesh_path.name] = pv.read(mesh_path)
+        else:
+            mesh_path_postfix = '/'.join(mesh_path.parts[-2:])
+            print(f'Loading meshes from "{mesh_path_postfix}" .....')
+
+            split_mesh = pv.PolyData()
+            for m_chunk_path in tqdm(list(mesh_path.glob('*.ply')), desc='Chunks'):
+                split_mesh += pv.read(m_chunk_path)
+            meshes[mesh_path.parent.name] = split_mesh
 
     # Plotter window shape
     window_shapes = {
