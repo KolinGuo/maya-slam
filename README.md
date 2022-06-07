@@ -1,17 +1,6 @@
 # maya-slam
 Maya Archaeology VR - Project for CSE 237D Course
 
-
-# Workflow
-The steps to run the entire system are :
-1. Open camera using `./realsense_capture/start_camera.sh` from `realsense_capture` container.
-2. Start tracking using `./slam_algorithms/maplab/run_maplab.sh <bagname>` from `maplab` container
-3. Stop tracking by `ctrl+c` and stop containers.
-4. Reconstruct 3D mesh using `scene_recon/open3d_tsdf/build_mesh.sh <bagname> <voxelsize>` inside `maya_recon` container.
-5. Split mesh into chunks using `split_mesh_into_json.py <plyname> <chunksize>` within same container.
-
-Done.
-<!--
 ## D435i IMU Calibration
 
 The steps are mainly summaries taken from
@@ -53,6 +42,17 @@ it. To turn screen rotation off, see
 </p>
 </details>
 
+# Workflow
+The steps to run the entire system are :
+1. Open camera using `./realsense_capture/start_camera.sh` from `realsense_capture` container.
+2. Start tracking using `./slam_algorithms/maplab/run_maplab.sh <bagname>` from `maplab` container
+3. Stop tracking by `ctrl+c` and stop containers.
+4. Reconstruct 3D mesh using `scene_recon/open3d_tsdf/build_mesh.sh <bagname> <voxelsize>` inside `maya_recon` container.
+5. Split mesh into chunks using `split_mesh_into_json.py <plyname> <chunksize>` within same container.
+
+Done.
+
+<!--
 ## Dataset folder
 
 Please place all datasets in [datasets/](datasets)
