@@ -1,3 +1,4 @@
+#!/bin/bash
 cd /maya-slam/slam_algorithms/maplab/catkin_ws
 export ROS_VERSION=melodic
 catkin init

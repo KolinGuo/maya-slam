@@ -1,3 +1,4 @@
+#!/bin/bash
 cd /maya-slam/realsense_capture/catkin_ws
 export ROS_VERSION=melodic
 catkin init

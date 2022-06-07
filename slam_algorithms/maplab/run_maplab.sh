@@ -1,3 +1,4 @@
+#!/bin/bash
 cd /maya-slam/slam_algorithms/maplab/catkin_ws
 source devel/setup.bash
 roslaunch rovioli realsense.launch rosbag_path_prefix:="/maya-slam/slam_algorithms/rosbags/d435i_$1"
