@@ -1,10 +1,10 @@
-# Datasets
-/datasets
-
+# Datasets and recorded data
+/slam_algorithms/datasets/**
 /slam_algorithms/rosbags/**
 /scene_recon/output_plys/**
 !README.md
 
+/slam_algorithms/ORB_SLAM3-v0.3
 
 # Temporary bashrc scripts
 *bashrc
