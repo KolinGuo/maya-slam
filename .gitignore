@@ -1,6 +1,10 @@
 # Datasets
 /datasets
 
+/slam_algorithms/rosbags/**
+/scene_recon/output_plys/**
+!README.md
+
 
 # Temporary bashrc scripts
 *bashrc
