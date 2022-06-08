@@ -1,5 +1,10 @@
 # maya-slam
-Maya Archaeology VR - Project for CSE 237D Course
+Maya Archaeology VR - Project for CSE 237D Course Spring 2022
+
+## Group Members
+  * Kolin Guo
+  * Shrutheesh Iyer
+  * Tommy Sharkey
 
 ## D435i IMU Calibration
 The steps are mainly summaries taken from
@@ -45,6 +50,8 @@ it. To turn screen rotation off, see
 ## Data Recording and Reconstruction Workflow
 The steps to run the entire system are:
 1. Pull the docker images and build the containers with `./docker_setup.sh <container-name>`.  
+   Alternatively, run `./docker_setup.sh <container-name> -l` to build docker images locally
+   from the Dockerfiles.  
    When building the container for the first time, copy and run the "*Command to compile*" in the login banner.
 2. Open camera using `./realsense_capture/start_camera.sh` from `realsense_capture` container.
 3. Start tracking using `./slam_algorithms/maplab/run_maplab.sh <bag-name>` from `maplab` container.
@@ -58,7 +65,7 @@ The steps to run the entire system are:
     python3 /maya-slam/scene_recon/split_mesh_into_json.py <ply-path> --box-size <box-size>
     ```
 Some helpful scripts for visualization (all of them should be run inside `maya_recon` container):
-* Converting a rosbag to an MP4 video with RGB and depth image:
+* Convert a rosbag to an MP4 video with RGB and depth images:
   ```bash
   python3 /maya-slam/tools/rosbag_to_video.py <bag-path>
   ```
@@ -100,7 +107,7 @@ and the IMU sensors (accel and gyro @ 200 fps).
 
 ##### Note: RealSense D435i depth presets and performance tuning
 To obtain better performance of the D435i depth camera, we followed the
-[RealSense D400 series visual presets](https://dev.intelrealsense.com/docs/d400-series-visual-presets)
+[post of RealSense D400 series visual presets](https://dev.intelrealsense.com/docs/d400-series-visual-presets)
 and uses the HighAccuracyPreset.
 All presets can be found
 [here](https://github.com/IntelRealSense/librealsense/wiki/D400-Series-Visual-Presets#preset-table).
@@ -164,7 +171,7 @@ This docker image has Ubuntu 18.04, CUDA 11.3.1, ROS Melodic, OpenCV 4.4.0,
 [realsense-ros](https://github.com/IntelRealSense/realsense-ros),
 Python 3.6.9 with Jupyter Notebook.
 
-Unfortunately, for RGB-D+IMU systems such as RealSense D435i, ORB-SLAM3 does not have great
+Unfortunately, for RGB-D+IMU systems such as the RealSense D435i, ORB-SLAM3 does not have great
 performance and can sometimes lose track in featureless areas according to our experiments.
 
 #### Build & compile codebase
@@ -230,6 +237,35 @@ to run with TUM_VI dataset.
 
 </p>
 </details>
+
+</p>
+</details>
+
+<details>
+<summary><font size="+2"><b>Convert Rosbag to MP4 Video</b>: <i>maya_recon</i></font></summary>
+<p>
+
+| docker image | Dockerfile | Estimated compile time |
+| :-----: | :-----: | :-----: |
+| [kolinguo/maya_recon:v1.0](https://hub.docker.com/r/kolinguo/maya_recon) | [docker/Dockerfile_maya_recon](docker/Dockerfile_maya_recon) | No need to compile |
+
+Container for converting a rosbag to an MP4 video with RGB and depth images.  
+Uses PIL and OpenCV for image editing and video generation.
+Utilizes the custom [ImageHelper class](tools/image_helper.py) for
+combining images and adding texts.  
+This docker image has Ubuntu 20.04, CUDA 11.3.1, ROS Noetic, OpenCV 4.2.0,
+Python 3.8.10 with Jupyter Notebook and [requirements.txt](scene_recon/requirements.txt).
+
+#### Build
+1. `./docker_setup.sh maya_recon` to pull the docker image and build the container.
+
+#### Running
+Run the following python script to convert the rosbag at `<bag-path>` into
+an MP4 video. The generated video is saved as
+`{bag-path}_bag_frames/{bag-name}_bag_frames.mp4`
+  ```bash
+  python3 ./tools/rosbag_to_video.py <bag-path>
+  ```
 
 </p>
 </details>
@@ -364,33 +400,41 @@ output_plys
 └── ...
 ```
 
-:zap: **We recommend running this mesh splitting on a powerful system with >32GB RAM** :zap:
+:zap: **We recommend running this mesh splitting on a powerful system with 32GB RAM** :zap:
 
 </p>
 </details>
-
-
-<!--
-## Reconstruction Algorithms
 
 <details>
-<summary><b>openchisel</b> </summary>
+<summary><font size="+2"><b>Visualize Meshes</b>: <i>maya_recon</i></font></summary>
 <p>
 
-Run [docker_setup_openchisel.sh](docker_setup_openchisel.sh) build the docker image.
+| docker image | Dockerfile | Estimated compile time |
+| :-----: | :-----: | :-----: |
+| [kolinguo/maya_recon:v1.0](https://hub.docker.com/r/kolinguo/maya_recon) | [docker/Dockerfile_maya_recon](docker/Dockerfile_maya_recon) | No need to compile |
 
-### Steps
+Container for visualizing PLY meshes or the split mesh chunks.  
+Uses [PyVista](https://docs.pyvista.org/) to load and visualize the meshes
+due to its great efficiency of processing very large meshes
+compared to other 3D mesh processing libraries (*e.g.*, trimesh and Open3D).  
+This docker image has Ubuntu 20.04, CUDA 11.3.1, ROS Noetic, OpenCV 4.2.0,
+Python 3.8.10 with Jupyter Notebook and [requirements.txt](scene_recon/requirements.txt).
 
-#### To compile/build
-* `cd scene_recon/openchisel`
-* `./build_ros.sh`
+#### Build
+1. `./docker_setup.sh maya_recon` to pull the docker image and build the container.
 
-#### To run
-`./run_openchisel.sh`
+#### Running
+Run the following python script to visualize the mesh or the split mesh chunks
+at `<ply-path>`
+(supports up to 4 meshes at the same time,
+usage examples can be found in the python script
+[visualize_mesh.py](tools/visualize_mesh.py#L3-L14)):
+  ```bash
+  python3 ./tools/visualize_mesh.py <ply-path>...
+  ```
 
 </p>
 </details>
--->
 
 ## Credits
   1. [GitHub of maplab](https://github.com/ethz-asl/maplab)
