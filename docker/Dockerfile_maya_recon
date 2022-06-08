@@ -1,7 +1,7 @@
 FROM nvidia/cudagl:11.3.1-devel-ubuntu20.04
 
 #############################################
-# SECTION 0: Install cuDNN and              #
+# SECTION 0: Install cuDNN                  #
 #############################################
 ENV NV_CUDNN_VERSION=8.2.0.53
 
