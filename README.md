@@ -309,6 +309,37 @@ visualizations for the SLAM estimate and the refined trajectory.
 
 :zap: **We recommend running this dense reconstruction on a powerful system with >64GB RAM** :zap:
 
+<details>
+<summary><font size="+0">Some Jupyter Notebooks Containing Draft Code</font></summary>
+<p>
+
+Some Jupyter notebooks containing draft code are included in
+[scene_recon/notebooks](scene_recon/notebooks).
+
+* [Open3D_Dense_RGBD_SLAM.ipynb](scene_recon/notebooks/Open3D_Dense_RGBD_SLAM.ipynb):
+  scene reconstruction using Open3D tensor-based
+  [Dense RGBD SLAM](http://www.open3d.org/docs/0.15.1/tutorial/t_reconstruction_system/dense_slam.html).
+  Probably due to the unstable implementation of the marching-cubes algorithm,
+  the algorithm will always crashes the kernel during extracting the triangular mesh
+  from the
+  [VoxelBlockGrid](http://www.open3d.org/docs/0.15.1/python_api/open3d.t.geometry.VoxelBlockGrid.html).
+* [Open3D_TSDF_integration.ipynb](scene_recon/notebooks/Open3D_TSDF_integration.ipynb):
+  draft code for [open3d_tsdf_reconstruction.py](scene_recon/open3d_tsdf/open3d_tsdf_reconstruction.py).
+* [Open3D_TSDF_integration_tensor.ipynb](scene_recon/notebooks/Open3D_TSDF_integration_tensor.ipynb):
+  scene reconstruction using Open3D tensor-based
+  [VoxelBlockGrid](http://www.open3d.org/docs/0.15.1/python_api/open3d.t.geometry.VoxelBlockGrid.html).
+  Probably due to the unstable implementation of the marching-cubes algorithm,
+  the algorithm will always crashes the kernel during extracting the triangular mesh.
+* [PLY_vertex_color_to_face_color.ipynb](scene_recon/notebooks/PLY_vertex_color_to_face_color.ipynb):
+  code for converting mesh per-vertex color information to per-face color information using
+  [PolyData.point_data_to_cell_data()](https://docs.pyvista.org/api/core/_autosummary/pyvista.PolyData.point_data_to_cell_data.html).
+  Not needed for this project.
+* [Split_scene_and_json_generation.ipynb](scene_recon/notebooks/Split_scene_and_json_generation.ipynb):
+  draft code for [split_mesh_into_json.py](scene_recon/split_mesh_into_json.py).
+
+</p>
+</details>
+
 </p>
 </details>
 
