@@ -1,29 +1,29 @@
 <launch>
 
-    <arg name="offline"          default="false"/>
-    <include unless="$(arg offline)" 
-        file="$(find realsense2_camera)/launch/rs_camera.launch">
-        <arg name="align_depth" value="true"/>
-        <arg name="enable_gyro" value="true"/>
-        <arg name="enable_accel" value="true"/>
-        <arg name="unite_imu_method" value="linear_interpolation"/>
-        <!-- <arg name="color_width" value="1280"/>
-        <arg name="color_height" value="720"/>
-        <arg name="depth_width" value="1280"/>
-        <arg name="depth_height" value="720"/> -->
-        <arg name="enable_sync" value="true"/>
-        <arg name="color_width" value="848"/>
-        <arg name="color_height" value="480"/>
-        <arg name="depth_width" value="848"/>
-        <arg name="depth_height" value="480"/>
-        <arg name="json_file_path" default="$(find realsense_d435i_capture)/json/HighAccuracyPreset.json"/>
-        <arg name="enable_pointcloud" value="true"/>
-        <arg name="depth_fps" value="30" />        
-        <arg name="color_fps" value="30" />
-    </include>
+  <arg name="offline" default="false"/>
+  <include unless="$(arg offline)"
+           file="$(find realsense2_camera)/launch/rs_camera.launch">
+    <arg name="align_depth" value="true"/>
+    <arg name="enable_gyro" value="true"/>
+    <arg name="enable_accel" value="true"/>
+    <arg name="unite_imu_method" value="linear_interpolation"/>
+    <!-- <arg name="color_width" value="1280"/>
+    <arg name="color_height" value="720"/>
+    <arg name="depth_width" value="1280"/>
+    <arg name="depth_height" value="720"/> -->
+    <arg name="enable_sync" value="true"/>
+    <arg name="color_width" value="848"/>
+    <arg name="color_height" value="480"/>
+    <arg name="depth_width" value="848"/>
+    <arg name="depth_height" value="480"/>
+    <arg name="json_file_path" default="$(find realsense_d435i_capture)/json/HighAccuracyPreset.json"/>
+    <arg name="enable_pointcloud" value="true"/>
+    <arg name="depth_fps" value="30" />
+    <arg name="color_fps" value="30" />
+  </include>
 
   <node name="image_view" pkg="image_view" type="image_view" respawn="false" output="screen">
-      <remap from="image" to="/camera/color/image_raw" />
+    <remap from="image" to="/camera/color/image_raw" />
   </node>
 
   <!-- <node type="rviz" name="rviz" pkg="rviz" args="-d $(find realsense_d435i_capture)/rviz/config_file.rviz" /> -->
