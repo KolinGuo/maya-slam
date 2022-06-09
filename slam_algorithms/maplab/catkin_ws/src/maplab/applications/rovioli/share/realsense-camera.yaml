@@ -5,39 +5,26 @@ cameras:
     label: /camera/color
     id: 54812562fa109c40fe90b29a59dd7798
     line-delay-nanoseconds: 0
-    # image_height: 720
-    # image_width: 1280
-    # type: pinhole
-    # intrinsics:
-    #   cols: 1
-    #   rows: 4
-    #   data: [910.274169921875, 909.95703125, 639.4285888671875, 363.73590087890625]
-    # distortion:
-    #   type: radial-tangential
-    #   parameters:
-    #     cols: 1
-    #     rows: 4
-    #     data: [ 0,0,0,0]
     # image_height: 480
-    # image_width: 640
+    # image_width: 848
     # type: pinhole
     # intrinsics:
     #   cols: 1
     #   rows: 4
-    #   data: [606.8494873046875, 606.6380615234375, 319.6190490722656, 242.4906005859375]
+    #   data: [606.8494262695312, 606.6380615234375, 423.6190490722656, 242.4906005859375]
     # distortion:
     #   type: radial-tangential
     #   parameters:
     #     cols: 1
     #     rows: 4
     #     data: [ 0,0,0,0]
-    image_height: 480
-    image_width: 848
+    image_height: 720
+    image_width: 1280
     type: pinhole
     intrinsics:
       cols: 1
       rows: 4
-      data: [606.8494262695312, 606.6380615234375, 423.6190490722656, 242.4906005859375]
+      data: [911.2752685546875, 909.060546875, 646.5064697265625, 363.9443359375]
     distortion:
       type: radial-tangential
       parameters:

@@ -152,6 +152,8 @@ The RealSense camera parameters can be modified in
 and
 [realsense-imu.yaml](slam_algorithms/maplab/catkin_ws/src/maplab/applications/rovioli/share/realsense-imu.yaml).
 
+:mega: **Remember to update the camera parameters for your RealSense camera**
+
 </p>
 </details>
 
@@ -372,7 +374,6 @@ The script will launch the launch file
 The TSDF `<voxel_resolution_m>` parameter is specified in meters and can be tuned given the available
 system RAM resources. However, OpenChisel seems to not function properly
 when `<voxel_resolution_m>` is below 0.04 meter (*i.e.*, 4 cm), presumably due to suboptimal implementation.
-
 
 :mega: **We recommend using the Open3D-based *maya_recon* for dense reconstruction**
 
