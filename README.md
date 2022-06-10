@@ -1,6 +1,14 @@
 # maya-slam
 Maya Archaeology VR - Project for CSE 237D Course Spring 2022
 
+This repository contains the code for data recording, visual-inertial SLAM, and dense reconstruction. The VR part of this project can be found in the [main repository on GitLab](https://gitlab.nrp-nautilus.io/tsharkey/maya-archeology-unity).
+
+An example collected RGB-D sequence can be view in the video below.  
+[![Kitchen RGB-D sequence](docs/Kitchen_2022-06-04-23-39-35_frame_00000.png)](https://drive.google.com/file/d/1rs-0pipUUZarRR7YuHHC-0TRISR8JfdM/view?usp=sharing)
+
+The reconstructed mesh with 5 mm TSDF voxel resolution and camera pose refinement is shown below.  
+![Kitchen_TSDF5mm](docs/Kitchen_2022-06-04-23-39-35_TSDF5mm_pose_refined)
+
 ## Group Members
   * Kolin Guo
   * Shrutheesh Iyer
@@ -468,6 +476,10 @@ usage examples can be found in the python script
 </p>
 </details>
 
+## Video and Report
+You can check out our video description below and our [final report here](https://drive.google.com/file/d/19Ro2_fz5rI_lMPYsiB1i2cJjAFTdzhrC/view?usp=sharing).  
+[![Video description](https://img.youtube.com/vi/BEKNMh0L4R0/0.jpg)](https://www.youtube.com/watch?v=BEKNMh0L4R0)
+ 
 ## Credits
   1. [GitHub of maplab](https://github.com/ethz-asl/maplab)
   2. [GitHub of ORB-SLAM3](https://github.com/UZ-SLAMLab/ORB_SLAM3)
